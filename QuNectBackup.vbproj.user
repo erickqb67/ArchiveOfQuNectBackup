@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PublishUrlHistory>C:\QuNect\QuNectBackup\QuNectBackup\publish\|ftp://ftp.qunect.com/download/QuNectBackup/|ftp://ftp.qunect.com/trial/QuNectBackup/</PublishUrlHistory>
+    <InstallUrlHistory>https://www.qunectllc.com/download/QuNectBackup/|http://www.qunect.com/download/QuNectBackup/|http://www.qunect.com/trial/QuNectBackup/|http://qunect.com/trial/QuNectBackup/</InstallUrlHistory>
+    <SupportUrlHistory>http://www.qunect.com</SupportUrlHistory>
+    <UpdateUrlHistory>
+    </UpdateUrlHistory>
+    <BootstrapperUrlHistory>
+    </BootstrapperUrlHistory>
+    <FallbackCulture>en-US</FallbackCulture>
+    <VerifyUploadedFiles>false</VerifyUploadedFiles>
+    <ErrorReportUrlHistory>http://www.qunect.com</ErrorReportUrlHistory>
+  </PropertyGroup>
+</Project>
