@@ -11,7 +11,7 @@
     <RootNamespace>QuNectBackup</RootNamespace>
     <AssemblyName>QuNectBackup</AssemblyName>
     <MyType>WindowsForms</MyType>
-    <ManifestCertificateThumbprint>BCEEF3CBB31819CCF1F35E0177F815C2E262150E</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>85003B1A0BC0DC43B20B71903F37587C5617EA33</ManifestCertificateThumbprint>
     <ManifestKeyFile>
     </ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>

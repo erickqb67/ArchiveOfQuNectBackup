@@ -10,7 +10,7 @@ Imports System.Threading
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.58"
+    Private Const qunectBackupVersion = "1.0.0.59"
     Private cmdLineArgs() As String
     Private automode As Boolean = False
     Private connectionString As String = ""
@@ -114,8 +114,8 @@ Public Class backup
         qdbVer.year = CInt(m.Groups(1).Value)
         qdbVer.major = CInt(m.Groups(2).Value)
         qdbVer.minor = CInt(m.Groups(3).Value)
-        If (qdbVer.year < 15) Or ((qdbVer.year = 15) And ((qdbVer.major <= 5) And (qdbVer.minor < 78))) Then
-            MsgBox("You are running the " & ver & " version of QuNect ODBC for QuickBase. Please install the latest version from http://qunect.com/download/QuNect.exe")
+        If qdbVer.year < 17 Then
+            MsgBox("You are running the " & ver & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe")
             quNectConn.Dispose()
             Me.Cursor = Cursors.Default
             Exit Sub
@@ -374,7 +374,7 @@ Public Class backup
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not get field identifiers for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable = MsgBox("Could not get record count for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
             End If
             quNectCmd.Dispose()
             Exit Function
@@ -384,19 +384,43 @@ Public Class backup
         End If
 
         Dim recordCount As Integer = dr.GetValue(0)
+        quNectCmd.Dispose()
 
+        quickBaseSQL = "select fid, field_type, formula, mode from """ & dbid & "~fields"""
+
+        quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
+        Try
+            dr = quNectCmd.ExecuteReader()
+        Catch excpt As Exception
+            If Not automode Then
+                backupTable = MsgBox("Could not get field identifiers and types for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+            End If
+            quNectCmd.Dispose()
+            Exit Function
+        End Try
+        If Not dr.HasRows Then
+            Exit Function
+        End If
 
 
 
 
         Dim i
         Dim clist As String = ""
+        Dim fieldTypes As String = ""
         Dim period As String = ""
-        For i = 0 To columns.Rows.Count - 1
-            Dim fid As String = Regex.Replace(columns.Rows(i)("REMARKS"), "^.+ fid(\d+)$", "$1")
-            clist &= period & fid
+        While (dr.Read())
+            Dim mode As String = dr.GetString(3)
+            Dim formula As String = dr.GetString(2)
+            Dim field_type As String = dr.GetString(1)
+            If (field_type = "url" Or field_type = "dblink") And mode = "virtual" And Not formula.Contains("/AmazonS3/download.aspx?") Then
+                Continue While
+            End If
+            clist &= period & dr.GetString(0)
+            fieldTypes &= period & field_type
             period = "."
-        Next
+        End While
+        quNectCmd.Dispose()
 
         Dim folderPath As String = txtBackupFolder.Text
         If ckbDateFolders.Checked Then
@@ -417,7 +441,7 @@ Public Class backup
             End If
             Exit Function
         End Try
-        objWriter.Write(clist)
+        objWriter.Write(clist & vbCrLf & fieldTypes)
         objWriter.Close()
 
         'here we need to open a file

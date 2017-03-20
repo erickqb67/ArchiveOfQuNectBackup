@@ -12,4 +12,7 @@
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
     <ErrorReportUrlHistory>http://www.qunect.com</ErrorReportUrlHistory>
   </PropertyGroup>
+  <PropertyGroup>
+    <EnableSecurityDebugging>false</EnableSecurityDebugging>
+  </PropertyGroup>
 </Project>
