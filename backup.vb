@@ -1,16 +1,16 @@
-Imports system.xml
+
 Imports System.Net
 Imports System.IO
 Imports System.Text
 Imports System.Data.Odbc
 Imports System.Text.RegularExpressions
-Imports System.Threading
+
 
 
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.59"
+    Private Const qunectBackupVersion = "1.0.0.60"
     Private cmdLineArgs() As String
     Private automode As Boolean = False
     Private connectionString As String = ""
