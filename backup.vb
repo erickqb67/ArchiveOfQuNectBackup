@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.60"
+    Private Const qunectBackupVersion = "1.0.0.66"
     Private cmdLineArgs() As String
     Private automode As Boolean = False
     Private connectionString As String = ""
@@ -20,6 +20,10 @@ Public Class backup
         Public year As Integer
         Public major As Integer
         Public minor As Integer
+    End Class
+    Private Class backupResult
+        Public result As Boolean
+        Public okayCancel As DialogResult
     End Class
     Private qdbVer As qdbVersion = New qdbVersion
 
@@ -336,7 +340,7 @@ Public Class backup
             Me.Cursor = Cursors.Default
             Exit Sub
         End Try
-
+        Dim backupCounter As Integer = 0
         For i = 0 To lstBackup.Items.Count - 1
             If Not automode Then
                 lblProgress.Text = ""
@@ -344,42 +348,59 @@ Public Class backup
             End If
             Dim dbName As String = lstBackup.Items(i).ToString()
             Dim dbid As String = dbName.Substring(dbName.LastIndexOf(" ") + 1)
-            If backupTable(dbName, dbid, quNectConn) = DialogResult.Cancel Then
+            Dim successFailure As backupResult = backupTable(dbName, dbid, quNectConn)
+            If successFailure.okayCancel = DialogResult.Cancel Then
                 Exit For
+            End If
+            If successFailure.result Then
+                backupCounter += 1
             End If
         Next
         quNectConn.Close()
         quNectConn.Dispose()
         Me.Cursor = Cursors.Default
         If Not automode Then
-            If lstBackup.Items.Count = 1 Then
+            If lstBackup.Items.Count = 1 And backupCounter = 1 Then
                 MsgBox("Your table has been backed up!")
+            ElseIf lstBackup.Items.Count = 1 And backupCounter = 0 Then
+                MsgBox("Sorry, your table was not backed up.")
+            ElseIf backupCounter = 0 Then
+                MsgBox("Sorry, none of your tables were  backed up.")
             Else
-                MsgBox("Your tables have been backed up!")
+                MsgBox(backupCounter & " of " & lstBackup.Items.Count & " tables were backed up.")
             End If
         End If
     End Sub
-    Private Function backupTable(ByVal dbName As String, ByVal dbid As String, ByVal quNectConn As OdbcConnection) As DialogResult
+    Private Function backupTable(ByVal dbName As String, ByVal dbid As String, ByVal quNectConn As OdbcConnection) As backupResult
         'we need to get the schema of the table
         Dim restrictions(2) As String
         restrictions(2) = dbid
         Dim columns As DataTable = quNectConn.GetSchema("Columns", restrictions)
         'now we can look for formula fileURL fields
-        backupTable = DialogResult.OK
-        Dim quickBaseSQL As String = "select count(1) from """ & dbid & """"
+        backupTable = New backupResult
+        backupTable.okayCancel = DialogResult.OK
+        backupTable.result = True
+        Dim quickBaseSQL As String = "Select count(1) from """ & dbid & """"
 
-        Dim quNectCmd As OdbcCommand = New OdbcCommand(quickBaseSQL, quNectConn)
+        Dim quNectCmd As OdbcCommand = Nothing
         Dim dr As OdbcDataReader
         Try
+            quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not get record count for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you Like To Continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.result = False
             End If
-            quNectCmd.Dispose()
+
+            If Not quNectCmd Is Nothing Then
+                quNectCmd.Dispose()
+            End If
             Exit Function
         End Try
         If Not dr.HasRows Then
+            backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " perhaps because the report's criteria refer to fields you do not have access to." & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+            backupTable.result = False
             Exit Function
         End If
 
@@ -387,13 +408,13 @@ Public Class backup
         quNectCmd.Dispose()
 
         quickBaseSQL = "select fid, field_type, formula, mode from """ & dbid & "~fields"""
-
-        quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
         Try
+            quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not get field identifiers and types for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = MsgBox("Could not get field identifiers and types for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.result = False
             End If
             quNectCmd.Dispose()
             Exit Function
@@ -437,7 +458,8 @@ Public Class backup
             objWriter = New System.IO.StreamWriter(filepath)
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.result = False
             End If
             Exit Function
         End Try
@@ -448,13 +470,15 @@ Public Class backup
         'filename prefix can only be 229 characters in length
         quickBaseSQL = "select * from """ & dbid & """"
 
-        quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
+
 
         Try
+            quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not backup table " & filenamePrefix & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = MsgBox("Could not backup table " & filenamePrefix & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.result = False
             End If
             quNectCmd.Dispose()
             Exit Function
@@ -468,7 +492,8 @@ Public Class backup
             objWriter = New System.IO.StreamWriter(filepath)
         Catch excpt As Exception
             If Not automode Then
-                backupTable = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.result = False
             End If
             Exit Function
         End Try
