@@ -10,7 +10,8 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.66"
+    Private Const qunectBackupVersion = "1.0.0.68"
+    Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
     Private connectionString As String = ""
@@ -41,8 +42,11 @@ Public Class backup
         End If
     End Sub
 
-    
+
     Private Sub backup_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
+
+
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
         txtPassword.Text = GetSetting(AppName, "Credentials", "password")
         txtServer.Text = GetSetting(AppName, "Credentials", "server", "www.quickbase.com")
@@ -66,7 +70,7 @@ Public Class backup
         Else
             ckbSSO.Checked = False
         End If
-        
+
         txtBackupFolder.Text = GetSetting(AppName, "location", "path")
         cmdLineArgs = System.Environment.GetCommandLineArgs()
         If cmdLineArgs.Length > 1 Then
@@ -118,8 +122,12 @@ Public Class backup
         qdbVer.year = CInt(m.Groups(1).Value)
         qdbVer.major = CInt(m.Groups(2).Value)
         qdbVer.minor = CInt(m.Groups(3).Value)
+        If qdbVer.year < yearForAllFileURLs Then
+            cmbAttachments.Items(3) = "Please upgrade to latest version of QuNect ODBC for QuickBase to list all file URLs"
+        End If
+
         If qdbVer.year < 17 Then
-            MsgBox("You are running the " & ver & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe")
+            MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe")
             quNectConn.Dispose()
             Me.Cursor = Cursors.Default
             Exit Sub
@@ -311,6 +319,10 @@ Public Class backup
     End Function
     Private Sub backup()
         'here we need to go through the list and backup
+        If cmbAttachments.SelectedIndex = 3 And qdbVer.year < yearForAllFileURLs Then
+            MsgBox("Please upgrade to the latest version of QuNect ODBC for QuickBase to list all file URLs instead of just the current revision file URL.", MsgBoxStyle.OkOnly, AppName)
+            Return
+        End If
         Dim i As Integer
         Me.Cursor = Cursors.WaitCursor
         Dim connectionString As String = buildConnectionString()
@@ -326,6 +338,8 @@ Public Class backup
 
         If cmbAttachments.SelectedIndex = 2 Then
             connectionString &= ";allrevisions=1"
+        ElseIf cmbAttachments.SelectedIndex = 3 Then
+            connectionString &= ";allrevisions=ALL"
         End If
 
         Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
@@ -399,7 +413,7 @@ Public Class backup
             Exit Function
         End Try
         If Not dr.HasRows Then
-            backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " perhaps because the report's criteria refer to fields you do not have access to." & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+            backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " perhaps because either the report's, criteria, sort order or columns refer to fields you do not have access to." & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
             backupTable.result = False
             Exit Function
         End If
@@ -596,7 +610,9 @@ Public Class backup
     End Sub
 
     Private Sub cmbAttachments_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmbAttachments.SelectedIndexChanged
-        SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+        If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
+            SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+        End If
     End Sub
 
     Private Sub btnRemove_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnRemove.Click

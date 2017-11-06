@@ -186,7 +186,7 @@ Partial Class backup
         Me.btnAddToBackupList.Size = New System.Drawing.Size(31, 24)
         Me.btnAddToBackupList.TabIndex = 13
         Me.btnAddToBackupList.Text = "->"
-        Me.ToolTip1.SetToolTip(Me.btnAddToBackupList, "Hold down the shift key and click me to move over all tables, without the shift k" & _
+        Me.ToolTip1.SetToolTip(Me.btnAddToBackupList, "Hold down the shift key and click me to move over all tables, without the shift k" &
         "ey I add one table per click.")
         Me.btnAddToBackupList.UseVisualStyleBackColor = True
         Me.btnAddToBackupList.Visible = False
@@ -213,7 +213,7 @@ Partial Class backup
         'cmbAttachments
         '
         Me.cmbAttachments.FormattingEnabled = True
-        Me.cmbAttachments.Items.AddRange(New Object() {"Do not download", "Download the current revision", "Download all revisions"})
+        Me.cmbAttachments.Items.AddRange(New Object() {"Do not download", "Download current revision and list file URL", "Download all revisions and current rev file URL", "Download all revisions and all file URLs"})
         Me.cmbAttachments.Location = New System.Drawing.Point(292, 76)
         Me.cmbAttachments.Name = "cmbAttachments"
         Me.cmbAttachments.Size = New System.Drawing.Size(238, 21)
@@ -234,7 +234,7 @@ Partial Class backup
         Me.btnRemove.Size = New System.Drawing.Size(31, 24)
         Me.btnRemove.TabIndex = 18
         Me.btnRemove.Text = "<-"
-        Me.ToolTip1.SetToolTip(Me.btnRemove, "Hold down the shift key and click me to remove all the tables, without the shift " & _
+        Me.ToolTip1.SetToolTip(Me.btnRemove, "Hold down the shift key and click me to remove all the tables, without the shift " &
         "key I remove one table per click.")
         Me.btnRemove.UseVisualStyleBackColor = True
         Me.btnRemove.Visible = False
