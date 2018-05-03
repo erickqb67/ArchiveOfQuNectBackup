@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.68"
+    Private Const qunectBackupVersion = "1.0.0.69"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -565,8 +565,8 @@ Public Class backup
                                             If (filePrefix.Length() + fileSuffix.Length() > 255) Then
                                                 filePrefix = filePrefix.Remove(255 - fileSuffix.Length())
                                             End If
-
-                                            filepath = folderPath & "\" & filePrefix + fileSuffix
+                                            Directory.CreateDirectory(folderPath & "\" & dbid)
+                                            filepath = folderPath & "\" & dbid & "\" & filePrefix + fileSuffix
 
                                             Using reader As BinaryReader = New BinaryReader(rawStream)
                                                 File.WriteAllBytes(filepath, reader.ReadBytes(CInt(wc.ResponseHeaders("content-length"))))

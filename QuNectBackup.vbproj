@@ -11,7 +11,7 @@
     <RootNamespace>QuNectBackup</RootNamespace>
     <AssemblyName>QuNectBackup</AssemblyName>
     <MyType>WindowsForms</MyType>
-    <ManifestCertificateThumbprint>85003B1A0BC0DC43B20B71903F37587C5617EA33</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>10501FD56F3DEA5577ECABBFEF28D8E9C79574DB</ManifestCertificateThumbprint>
     <ManifestKeyFile>
     </ManifestKeyFile>
     <GenerateManifests>true</GenerateManifests>
@@ -40,7 +40,7 @@
     <PublisherName>QuNect</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>68</ApplicationRevision>
+    <ApplicationRevision>69</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
