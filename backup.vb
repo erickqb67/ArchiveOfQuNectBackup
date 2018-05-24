@@ -10,13 +10,13 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.69"
+    Private Const qunectBackupVersion = "1.0.0.71"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
-    Private connectionString As String = ""
     Private appdbid As String = ""
     Private qdbAppName As String = ""
+    Private dbidToAppName As New Dictionary(Of String, String)
     Private Class qdbVersion
         Public year As Integer
         Public major As Integer
@@ -57,6 +57,12 @@ Public Class backup
             ckbDateFolders.Checked = True
         Else
             ckbDateFolders.Checked = False
+        End If
+        Dim appFoldersSetting As String = GetSetting(AppName, "appfolders", "mode", "0")
+        If appFoldersSetting = "1" Then
+            ckbAppFolders.Checked = True
+        Else
+            ckbAppFolders.Checked = False
         End If
         Dim detectProxySetting As String = GetSetting(AppName, "Credentials", "detectproxysettings", "0")
         If detectProxySetting = "1" Then
@@ -103,7 +109,7 @@ Public Class backup
     Private Sub listTables()
         Me.Cursor = Cursors.WaitCursor
         tvAppsTables.Visible = True
-        Dim connectionString As String = buildConnectionString()
+        Dim connectionString As String = buildConnectionString("")
         Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
         Try
             quNectConn.Open()
@@ -133,8 +139,8 @@ Public Class backup
             Exit Sub
         End If
 
-        Dim tables As DataTable = quNectConn.GetSchema("Tables")
-        listTablesFromGetSchema(tables)
+        Dim tableOfTables As DataTable = quNectConn.GetSchema("Tables")
+        listTablesFromGetSchema(tableOfTables)
         quNectConn.Close()
         quNectConn.Dispose()
     End Sub
@@ -175,7 +181,7 @@ Public Class backup
         For i = 0 To lstBackup.Items.Count - 1
             backupDBIDs.Add(i, lstBackup.Items(i).Substring(lstBackup.Items(i).LastIndexOf(" ") + 1))
         Next
-
+        dbidToAppName.Clear()
         For i = 0 To tables.Rows.Count - 1
             pb.Value = i
             Application.DoEvents()
@@ -183,6 +189,9 @@ Public Class backup
             applicationName = tables.Rows(i)(0)
             Dim dbidMatch As Match = getDBIDfromdbName.Match(dbName)
             dbid = dbidMatch.Value
+            If Not dbidToAppName.ContainsKey(dbid) Then
+                dbidToAppName.Add(dbid, applicationName)
+            End If
             If applicationName <> prevAppName Then
 
                 Dim appNode As TreeNode = tvAppsTables.Nodes.Add(applicationName)
@@ -301,7 +310,7 @@ Public Class backup
     Private Sub btnBackup_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnBackup.Click
         backup()
     End Sub
-    Private Function buildConnectionString() As String
+    Private Function buildConnectionString(additionalFolders As String) As String
         buildConnectionString = "FIELDNAMECHARACTERS=all;uid=" & txtUsername.Text
         buildConnectionString &= ";pwd=" & txtPassword.Text
         buildConnectionString &= ";driver={QuNect ODBC for QuickBase};IGNOREDUPEFIELDNAMES=1;"
@@ -316,6 +325,24 @@ Public Class backup
         If appdbid.Length Then
             buildConnectionString &= ";APPID=" & appdbid & ";APPNAME=" & qdbAppName
         End If
+
+        If cmbAttachments.SelectedIndex = 2 Then
+            buildConnectionString &= ";allrevisions=1"
+        ElseIf cmbAttachments.SelectedIndex = 3 Then
+            buildConnectionString &= ";allrevisions=ALL"
+            'filepath needs to be the last thing on the connection string
+        End If
+        If cmbAttachments.SelectedIndex >= 1 Then
+            Dim folderPath As String = txtBackupFolder.Text
+            If ckbDateFolders.Checked Then
+                folderPath &= "\" & DateTime.Now.ToString("yyyy-MM-dd")
+            End If
+            If additionalFolders <> "" Then
+                folderPath &= "\" & makeFileNameCompatible(additionalFolders)
+            End If
+            Directory.CreateDirectory(folderPath)
+                buildConnectionString &= ";filepath=" & folderPath
+            End If
     End Function
     Private Sub backup()
         'here we need to go through the list and backup
@@ -325,25 +352,9 @@ Public Class backup
         End If
         Dim i As Integer
         Me.Cursor = Cursors.WaitCursor
-        Dim connectionString As String = buildConnectionString()
-        
-        Dim folderPath As String = txtBackupFolder.Text
-        If cmbAttachments.SelectedIndex >= 1 Then
-            If ckbDateFolders.Checked Then
-                folderPath &= "\" & DateTime.Now.ToString("yyyy-MM-dd")
-                Directory.CreateDirectory(folderPath)
-            End If
-            connectionString &= ";filepath=" & folderPath
-        End If
-
-        If cmbAttachments.SelectedIndex = 2 Then
-            connectionString &= ";allrevisions=1"
-        ElseIf cmbAttachments.SelectedIndex = 3 Then
-            connectionString &= ";allrevisions=ALL"
-        End If
+        Dim connectionString As String = buildConnectionString("")
 
         Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
-
         Try
             quNectConn.Open()
         Catch excpt As Exception
@@ -355,6 +366,7 @@ Public Class backup
             Exit Sub
         End Try
         Dim backupCounter As Integer = 0
+        Dim currentApplication As String = ""
         For i = 0 To lstBackup.Items.Count - 1
             If Not automode Then
                 lblProgress.Text = ""
@@ -362,6 +374,22 @@ Public Class backup
             End If
             Dim dbName As String = lstBackup.Items(i).ToString()
             Dim dbid As String = dbName.Substring(dbName.LastIndexOf(" ") + 1)
+            If ckbAppFolders.Checked AndAlso dbidToAppName.ContainsKey(dbid) AndAlso dbidToAppName.Item(dbid) <> currentApplication Then
+                currentApplication = dbidToAppName.Item(dbid)
+                connectionString = buildConnectionString(dbidToAppName(dbid))
+                quNectConn.Close()
+                quNectConn = New OdbcConnection(connectionString)
+                Try
+                    quNectConn.Open()
+                Catch excpt As Exception
+                    If Not automode Then
+                        MsgBox(excpt.Message())
+                    End If
+                    quNectConn.Dispose()
+                    Me.Cursor = Cursors.Default
+                    Exit Sub
+                End Try
+            End If
             Dim successFailure As backupResult = backupTable(dbName, dbid, quNectConn)
             If successFailure.okayCancel = DialogResult.Cancel Then
                 Exit For
@@ -385,7 +413,7 @@ Public Class backup
             End If
         End If
     End Sub
-    Private Function backupTable(ByVal dbName As String, ByVal dbid As String, ByVal quNectConn As OdbcConnection) As backupResult
+    Private Function backupTable(ByVal dbName As String, ByVal dbid As String, ByRef quNectConn As OdbcConnection) As backupResult
         'we need to get the schema of the table
         Dim restrictions(2) As String
         restrictions(2) = dbid
@@ -462,7 +490,16 @@ Public Class backup
             folderPath &= "\" & DateTime.Now.ToString("yyyy-MM-dd")
             Directory.CreateDirectory(folderPath)
         End If
-        Dim filenamePrefix As String = dbName.Replace("/", "").Replace("\", "").Replace(":", "").Replace(":", "_").Replace("?", "").Replace("""", "").Replace("<", "").Replace(">", "").Replace("|", "")
+        If ckbAppFolders.Checked Then
+            folderPath &= "\" & makeFileNameCompatible(dbidToAppName(dbid))
+            Directory.CreateDirectory(folderPath)
+        End If
+        Dim filenamePrefix As String = dbName
+        If ckbAppFolders.Checked Then
+            filenamePrefix = Regex.Replace(filenamePrefix, "\A[^\\]+\\", "")
+        End If
+        filenamePrefix = makeFileNameCompatible(filenamePrefix)
+
         If filenamePrefix.Length > 229 Then
             filenamePrefix = filenamePrefix.Substring(filenamePrefix.Length - 229)
         End If
@@ -595,6 +632,9 @@ Public Class backup
         dr.Close()
         quNectCmd.Dispose()
     End Function
+    Private Function makeFileNameCompatible(fileName As String) As String
+        Return fileName.Replace("/", "").Replace("\", "").Replace(":", "").Replace(":", "_").Replace("?", "").Replace("""", "").Replace("<", "").Replace(">", "").Replace("|", "")
+    End Function
     Private Function ChangeCharacter(s As String, replaceWith As Char, idx As Integer) As String
         Dim sb As New StringBuilder(s)
         sb(idx) = replaceWith
@@ -647,7 +687,13 @@ Public Class backup
             SaveSetting(AppName, "datefolders", "mode", "0")
         End If
     End Sub
-
+    Private Sub ckbAppFolders_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbAppFolders.CheckStateChanged
+        If ckbAppFolders.Checked Then
+            SaveSetting(AppName, "appfolders", "mode", "1")
+        Else
+            SaveSetting(AppName, "appfolders", "mode", "0")
+        End If
+    End Sub
     Private Sub ckbDetectProxy_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbDetectProxy.CheckStateChanged
         If ckbDetectProxy.Checked Then
             SaveSetting(AppName, "Credentials", "detectproxysettings", "1")

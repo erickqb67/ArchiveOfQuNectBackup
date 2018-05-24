@@ -53,6 +53,7 @@ Partial Class backup
         Me.ckbDetectProxy = New System.Windows.Forms.CheckBox()
         Me.ckbSSO = New System.Windows.Forms.CheckBox()
         Me.lblProgress = New System.Windows.Forms.Label()
+        Me.ckbAppFolders = New System.Windows.Forms.CheckBox()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -261,7 +262,7 @@ Partial Class backup
         'ckbDateFolders
         '
         Me.ckbDateFolders.AutoSize = True
-        Me.ckbDateFolders.Location = New System.Drawing.Point(559, 110)
+        Me.ckbDateFolders.Location = New System.Drawing.Point(559, 105)
         Me.ckbDateFolders.Name = "ckbDateFolders"
         Me.ckbDateFolders.Size = New System.Drawing.Size(188, 17)
         Me.ckbDateFolders.TabIndex = 21
@@ -305,11 +306,22 @@ Partial Class backup
         Me.lblProgress.Size = New System.Drawing.Size(0, 13)
         Me.lblProgress.TabIndex = 25
         '
+        'ckbAppFolders
+        '
+        Me.ckbAppFolders.AutoSize = True
+        Me.ckbAppFolders.Location = New System.Drawing.Point(559, 124)
+        Me.ckbAppFolders.Name = "ckbAppFolders"
+        Me.ckbAppFolders.Size = New System.Drawing.Size(199, 17)
+        Me.ckbAppFolders.TabIndex = 26
+        Me.ckbAppFolders.Text = "Put each application in its own folder"
+        Me.ckbAppFolders.UseVisualStyleBackColor = True
+        '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(842, 773)
+        Me.Controls.Add(Me.ckbAppFolders)
         Me.Controls.Add(Me.lblProgress)
         Me.Controls.Add(Me.ckbSSO)
         Me.Controls.Add(Me.ckbDetectProxy)
@@ -373,5 +385,5 @@ Partial Class backup
     Friend WithEvents ContextMenuStrip1 As System.Windows.Forms.ContextMenuStrip
     Friend WithEvents RetrieveTheTableReportsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents lblProgress As System.Windows.Forms.Label
-
+    Friend WithEvents ckbAppFolders As CheckBox
 End Class
