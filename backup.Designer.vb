@@ -26,7 +26,6 @@ Partial Class backup
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(backup))
         Me.txtUsername = New System.Windows.Forms.TextBox()
         Me.lblUsername = New System.Windows.Forms.Label()
-        Me.lblPassword = New System.Windows.Forms.Label()
         Me.txtPassword = New System.Windows.Forms.TextBox()
         Me.lblServer = New System.Windows.Forms.Label()
         Me.txtServer = New System.Windows.Forms.TextBox()
@@ -54,12 +53,13 @@ Partial Class backup
         Me.ckbSSO = New System.Windows.Forms.CheckBox()
         Me.lblProgress = New System.Windows.Forms.Label()
         Me.ckbAppFolders = New System.Windows.Forms.CheckBox()
+        Me.cmbPassword = New System.Windows.Forms.ComboBox()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
         'txtUsername
         '
-        Me.txtUsername.Location = New System.Drawing.Point(19, 24)
+        Me.txtUsername.Location = New System.Drawing.Point(19, 31)
         Me.txtUsername.Name = "txtUsername"
         Me.txtUsername.Size = New System.Drawing.Size(120, 20)
         Me.txtUsername.TabIndex = 0
@@ -67,33 +67,24 @@ Partial Class backup
         'lblUsername
         '
         Me.lblUsername.AutoSize = True
-        Me.lblUsername.Location = New System.Drawing.Point(22, 5)
+        Me.lblUsername.Location = New System.Drawing.Point(22, 12)
         Me.lblUsername.Name = "lblUsername"
         Me.lblUsername.Size = New System.Drawing.Size(110, 13)
         Me.lblUsername.TabIndex = 1
         Me.lblUsername.Text = "QuickBase Username"
         '
-        'lblPassword
-        '
-        Me.lblPassword.AutoSize = True
-        Me.lblPassword.Location = New System.Drawing.Point(160, 5)
-        Me.lblPassword.Name = "lblPassword"
-        Me.lblPassword.Size = New System.Drawing.Size(108, 13)
-        Me.lblPassword.TabIndex = 3
-        Me.lblPassword.Text = "QuickBase Password"
-        '
         'txtPassword
         '
-        Me.txtPassword.Location = New System.Drawing.Point(157, 24)
+        Me.txtPassword.Location = New System.Drawing.Point(157, 31)
         Me.txtPassword.Name = "txtPassword"
         Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtPassword.Size = New System.Drawing.Size(120, 20)
+        Me.txtPassword.Size = New System.Drawing.Size(141, 20)
         Me.txtPassword.TabIndex = 2
         '
         'lblServer
         '
         Me.lblServer.AutoSize = True
-        Me.lblServer.Location = New System.Drawing.Point(296, 5)
+        Me.lblServer.Location = New System.Drawing.Point(330, 13)
         Me.lblServer.Name = "lblServer"
         Me.lblServer.Size = New System.Drawing.Size(93, 13)
         Me.lblServer.TabIndex = 5
@@ -101,9 +92,9 @@ Partial Class backup
         '
         'txtServer
         '
-        Me.txtServer.Location = New System.Drawing.Point(293, 24)
+        Me.txtServer.Location = New System.Drawing.Point(327, 31)
         Me.txtServer.Name = "txtServer"
-        Me.txtServer.Size = New System.Drawing.Size(237, 20)
+        Me.txtServer.Size = New System.Drawing.Size(203, 20)
         Me.txtServer.TabIndex = 4
         '
         'lblAppToken
@@ -316,11 +307,22 @@ Partial Class backup
         Me.ckbAppFolders.Text = "Put each application in its own folder"
         Me.ckbAppFolders.UseVisualStyleBackColor = True
         '
+        'cmbPassword
+        '
+        Me.cmbPassword.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbPassword.FormattingEnabled = True
+        Me.cmbPassword.Items.AddRange(New Object() {"Please choose...", "QuickBase Password", "QuickBase User Token"})
+        Me.cmbPassword.Location = New System.Drawing.Point(157, 4)
+        Me.cmbPassword.Name = "cmbPassword"
+        Me.cmbPassword.Size = New System.Drawing.Size(141, 21)
+        Me.cmbPassword.TabIndex = 47
+        '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(842, 773)
+        Me.Controls.Add(Me.cmbPassword)
         Me.Controls.Add(Me.ckbAppFolders)
         Me.Controls.Add(Me.lblProgress)
         Me.Controls.Add(Me.ckbSSO)
@@ -344,7 +346,6 @@ Partial Class backup
         Me.Controls.Add(Me.txtAppToken)
         Me.Controls.Add(Me.lblServer)
         Me.Controls.Add(Me.txtServer)
-        Me.Controls.Add(Me.lblPassword)
         Me.Controls.Add(Me.txtPassword)
         Me.Controls.Add(Me.lblUsername)
         Me.Controls.Add(Me.txtUsername)
@@ -358,7 +359,6 @@ Partial Class backup
     End Sub
     Friend WithEvents txtUsername As System.Windows.Forms.TextBox
     Friend WithEvents lblUsername As System.Windows.Forms.Label
-    Friend WithEvents lblPassword As System.Windows.Forms.Label
     Friend WithEvents txtPassword As System.Windows.Forms.TextBox
     Friend WithEvents lblServer As System.Windows.Forms.Label
     Friend WithEvents txtServer As System.Windows.Forms.TextBox
@@ -386,4 +386,5 @@ Partial Class backup
     Friend WithEvents RetrieveTheTableReportsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents lblProgress As System.Windows.Forms.Label
     Friend WithEvents ckbAppFolders As CheckBox
+    Friend WithEvents cmbPassword As ComboBox
 End Class

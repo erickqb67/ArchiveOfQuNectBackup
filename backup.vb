@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.71"
+    Private Const qunectBackupVersion = "1.0.0.72"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -44,10 +44,8 @@ Public Class backup
 
 
     Private Sub backup_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-
-
-
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
+        cmbPassword.SelectedIndex = CInt(GetSetting(AppName, "Credentials", "passwordOrToken", "0"))
         txtPassword.Text = GetSetting(AppName, "Credentials", "password")
         txtServer.Text = GetSetting(AppName, "Credentials", "server", "www.quickbase.com")
         txtAppToken.Text = GetSetting(AppName, "Credentials", "apptoken", "b2fr52jcykx3tnbwj8s74b8ed55b")
@@ -109,45 +107,45 @@ Public Class backup
     Private Sub listTables()
         Me.Cursor = Cursors.WaitCursor
         tvAppsTables.Visible = True
-        Dim connectionString As String = buildConnectionString("")
-        Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
         Try
+            Dim connectionString As String = buildConnectionString("")
+            Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
             quNectConn.Open()
+            Dim ver As String = quNectConn.ServerVersion
+            Dim m As Match = Regex.Match(ver, "\d+\.(\d+)\.(\d+)\.(\d+)")
+            qdbVer.year = CInt(m.Groups(1).Value)
+            qdbVer.major = CInt(m.Groups(2).Value)
+            qdbVer.minor = CInt(m.Groups(3).Value)
+            If qdbVer.year < yearForAllFileURLs Then
+                cmbAttachments.Items(3) = "Please upgrade to latest version of QuNect ODBC for QuickBase to list all file URLs"
+            End If
+
+            If qdbVer.year < 17 Then
+                MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
+                quNectConn.Dispose()
+                Me.Cursor = Cursors.Default
+                Exit Sub
+            End If
+
+            Dim tableOfTables As DataTable = quNectConn.GetSchema("Tables")
+            listTablesFromGetSchema(tableOfTables)
+            Me.Cursor = Cursors.Default
+            quNectConn.Close()
+            quNectConn.Dispose()
         Catch excpt As Exception
             Me.Cursor = Cursors.Default
             If excpt.Message.StartsWith("ERROR [IM003]") Or excpt.Message.Contains("Data source name not found") Then
-                MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.")
+                MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(excpt.Message.Substring(13))
+                MsgBox(excpt.Message.Substring(13), MsgBoxStyle.OkOnly, AppName)
             End If
             Exit Sub
         End Try
-
-        Dim ver As String = quNectConn.ServerVersion
-        Dim m As Match = Regex.Match(ver, "\d+\.(\d+)\.(\d+)\.(\d+)")
-        qdbVer.year = CInt(m.Groups(1).Value)
-        qdbVer.major = CInt(m.Groups(2).Value)
-        qdbVer.minor = CInt(m.Groups(3).Value)
-        If qdbVer.year < yearForAllFileURLs Then
-            cmbAttachments.Items(3) = "Please upgrade to latest version of QuNect ODBC for QuickBase to list all file URLs"
-        End If
-
-        If qdbVer.year < 17 Then
-            MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe")
-            quNectConn.Dispose()
-            Me.Cursor = Cursors.Default
-            Exit Sub
-        End If
-
-        Dim tableOfTables As DataTable = quNectConn.GetSchema("Tables")
-        listTablesFromGetSchema(tableOfTables)
-        quNectConn.Close()
-        quNectConn.Dispose()
     End Sub
     Sub timeoutCallback(ByVal result As System.IAsyncResult)
         If Not automode Then
             Me.Cursor = Cursors.Default
-            MsgBox("Operation timed out. Please try again.")
+            MsgBox("Operation timed out. Please try again.", MsgBoxStyle.OkOnly, AppName)
         End If
     End Sub
     Sub listTablesFromGetSchema(tables As DataTable)
@@ -272,7 +270,7 @@ Public Class backup
                 End If
                 addToBackupList(tvAppsTables.SelectedNode.FullPath())
             Catch excpt As Exception
-                MsgBox("Please select a table first")
+                MsgBox("Please select a table first", MsgBoxStyle.OkOnly, AppName)
             End Try
         End If
     End Sub
@@ -341,8 +339,17 @@ Public Class backup
                 folderPath &= "\" & makeFileNameCompatible(additionalFolders)
             End If
             Directory.CreateDirectory(folderPath)
-                buildConnectionString &= ";filepath=" & folderPath
-            End If
+            buildConnectionString &= ";filepath=" & folderPath
+        End If
+        If cmbPassword.SelectedIndex = 0 Then
+            cmbPassword.Focus()
+            Throw New System.Exception("Please indicate whether you are using a password or a user token.")
+            Return ""
+        ElseIf cmbPassword.SelectedIndex = 1 Then
+            buildConnectionString &= ";PWDISPASSWORD=1"
+        Else
+            buildConnectionString &= ";PWDISPASSWORD=0"
+        End If
     End Function
     Private Sub backup()
         'here we need to go through the list and backup
@@ -359,7 +366,7 @@ Public Class backup
             quNectConn.Open()
         Catch excpt As Exception
             If Not automode Then
-                MsgBox(excpt.Message())
+                MsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
             End If
             quNectConn.Dispose()
             Me.Cursor = Cursors.Default
@@ -383,7 +390,7 @@ Public Class backup
                     quNectConn.Open()
                 Catch excpt As Exception
                     If Not automode Then
-                        MsgBox(excpt.Message())
+                        MsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
                     End If
                     quNectConn.Dispose()
                     Me.Cursor = Cursors.Default
@@ -403,13 +410,13 @@ Public Class backup
         Me.Cursor = Cursors.Default
         If Not automode Then
             If lstBackup.Items.Count = 1 And backupCounter = 1 Then
-                MsgBox("Your table has been backed up!")
+                MsgBox("Your table has been backed up!", MsgBoxStyle.OkOnly, AppName)
             ElseIf lstBackup.Items.Count = 1 And backupCounter = 0 Then
-                MsgBox("Sorry, your table was not backed up.")
+                MsgBox("Sorry, your table was not backed up.", MsgBoxStyle.OkOnly, AppName)
             ElseIf backupCounter = 0 Then
-                MsgBox("Sorry, none of your tables were  backed up.")
+                MsgBox("Sorry, none of your tables were  backed up.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(backupCounter & " of " & lstBackup.Items.Count & " tables were backed up.")
+                MsgBox(backupCounter & " of " & lstBackup.Items.Count & " tables were backed up.", MsgBoxStyle.OkOnly, AppName)
             End If
         End If
     End Sub
@@ -719,7 +726,7 @@ Public Class backup
     End Sub
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
         If (qdbVer.year < 16) Or ((qdbVer.year = 16) And ((qdbVer.major <= 6) And (qdbVer.minor < 20))) Then
-            MsgBox("To access this feature please install the latest version from http://qunect.com/download/QuNect.exe")
+            MsgBox("To access this feature please install the latest version from http://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
             Exit Sub
         End If
         'here we need to reconnect with the appid in the connection string
@@ -741,5 +748,14 @@ Public Class backup
         End If
         tvAppsTables.SelectedNode = e.Node
     End Sub
+    Private Sub cmbPassword_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPassword.SelectedIndexChanged
+        SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
+        If cmbPassword.SelectedIndex = 0 Then
+            txtPassword.Enabled = False
+        Else
+            txtPassword.Enabled = True
+        End If
+    End Sub
 End Class
+
 
