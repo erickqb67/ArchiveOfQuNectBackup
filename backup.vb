@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.76"
+    Private Const qunectBackupVersion = "1.0.0.79"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -47,8 +47,8 @@ Public Class backup
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
         cmbPassword.SelectedIndex = CInt(GetSetting(AppName, "Credentials", "passwordOrToken", "0"))
         txtPassword.Text = GetSetting(AppName, "Credentials", "password")
-        txtServer.Text = GetSetting(AppName, "Credentials", "server", "www.quickbase.com")
-        txtAppToken.Text = GetSetting(AppName, "Credentials", "apptoken", "b2fr52jcykx3tnbwj8s74b8ed55b")
+        txtServer.Text = GetSetting(AppName, "Credentials", "server", "")
+        txtAppToken.Text = GetSetting(AppName, "Credentials", "apptoken", "")
         cmbAttachments.Text = GetSetting(AppName, "attachments", "mode", "Do not download")
         Dim dateFoldersSetting As String = GetSetting(AppName, "datefolders", "mode", "0")
         If dateFoldersSetting = "1" Then
@@ -93,7 +93,8 @@ Public Class backup
         lblServer.Visible = txtServer.Visible
         lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 1
         txtAppToken.Visible = lblAppToken.Visible
-
+        btnAppToken.Visible = lblAppToken.Visible
+        btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 2
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
         SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
@@ -751,7 +752,11 @@ Public Class backup
         showHideControls()
     End Sub
     Private Sub btnAppToken_Click(sender As Object, e As EventArgs) Handles btnAppToken.Click
-        Process.Start("https://help.quickbase.com/user-assistance/app_tokens.html")
+        Process.Start("https://qunect.com/flash/AppToken.html")
+    End Sub
+
+    Private Sub btnUserToken_Click(sender As Object, e As EventArgs) Handles btnUserToken.Click
+        Process.Start("https://qunect.com/flash/UserToken.html")
     End Sub
 End Class
 

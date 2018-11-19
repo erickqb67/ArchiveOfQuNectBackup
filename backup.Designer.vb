@@ -54,6 +54,7 @@ Partial Class backup
         Me.ckbAppFolders = New System.Windows.Forms.CheckBox()
         Me.cmbPassword = New System.Windows.Forms.ComboBox()
         Me.btnAppToken = New System.Windows.Forms.Button()
+        Me.btnUserToken = New System.Windows.Forms.Button()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -84,7 +85,7 @@ Partial Class backup
         'lblServer
         '
         Me.lblServer.AutoSize = True
-        Me.lblServer.Location = New System.Drawing.Point(430, 13)
+        Me.lblServer.Location = New System.Drawing.Point(433, 13)
         Me.lblServer.Name = "lblServer"
         Me.lblServer.Size = New System.Drawing.Size(93, 13)
         Me.lblServer.TabIndex = 5
@@ -92,7 +93,7 @@ Partial Class backup
         '
         'txtServer
         '
-        Me.txtServer.Location = New System.Drawing.Point(427, 31)
+        Me.txtServer.Location = New System.Drawing.Point(434, 31)
         Me.txtServer.Name = "txtServer"
         Me.txtServer.Size = New System.Drawing.Size(203, 20)
         Me.txtServer.TabIndex = 4
@@ -272,7 +273,7 @@ Partial Class backup
         'ckbDetectProxy
         '
         Me.ckbDetectProxy.AutoSize = True
-        Me.ckbDetectProxy.Location = New System.Drawing.Point(642, 24)
+        Me.ckbDetectProxy.Location = New System.Drawing.Point(642, 13)
         Me.ckbDetectProxy.Name = "ckbDetectProxy"
         Me.ckbDetectProxy.Size = New System.Drawing.Size(188, 17)
         Me.ckbDetectProxy.TabIndex = 23
@@ -316,11 +317,21 @@ Partial Class backup
         Me.btnAppToken.Text = "?"
         Me.btnAppToken.UseVisualStyleBackColor = True
         '
+        'btnUserToken
+        '
+        Me.btnUserToken.Location = New System.Drawing.Point(407, 5)
+        Me.btnUserToken.Name = "btnUserToken"
+        Me.btnUserToken.Size = New System.Drawing.Size(19, 20)
+        Me.btnUserToken.TabIndex = 81
+        Me.btnUserToken.Text = "?"
+        Me.btnUserToken.UseVisualStyleBackColor = True
+        '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(842, 773)
+        Me.Controls.Add(Me.btnUserToken)
         Me.Controls.Add(Me.btnAppToken)
         Me.Controls.Add(Me.cmbPassword)
         Me.Controls.Add(Me.ckbAppFolders)
@@ -386,4 +397,5 @@ Partial Class backup
     Friend WithEvents ckbAppFolders As CheckBox
     Friend WithEvents cmbPassword As ComboBox
     Friend WithEvents btnAppToken As Button
+    Friend WithEvents btnUserToken As Button
 End Class
