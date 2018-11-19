@@ -50,10 +50,10 @@ Partial Class backup
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.pb = New System.Windows.Forms.ProgressBar()
         Me.ckbDetectProxy = New System.Windows.Forms.CheckBox()
-        Me.ckbSSO = New System.Windows.Forms.CheckBox()
         Me.lblProgress = New System.Windows.Forms.Label()
         Me.ckbAppFolders = New System.Windows.Forms.CheckBox()
         Me.cmbPassword = New System.Windows.Forms.ComboBox()
+        Me.btnAppToken = New System.Windows.Forms.Button()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -61,7 +61,7 @@ Partial Class backup
         '
         Me.txtUsername.Location = New System.Drawing.Point(19, 31)
         Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.Size = New System.Drawing.Size(120, 20)
+        Me.txtUsername.Size = New System.Drawing.Size(197, 20)
         Me.txtUsername.TabIndex = 0
         '
         'lblUsername
@@ -75,16 +75,16 @@ Partial Class backup
         '
         'txtPassword
         '
-        Me.txtPassword.Location = New System.Drawing.Point(157, 31)
+        Me.txtPassword.Location = New System.Drawing.Point(222, 31)
         Me.txtPassword.Name = "txtPassword"
         Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtPassword.Size = New System.Drawing.Size(141, 20)
+        Me.txtPassword.Size = New System.Drawing.Size(184, 20)
         Me.txtPassword.TabIndex = 2
         '
         'lblServer
         '
         Me.lblServer.AutoSize = True
-        Me.lblServer.Location = New System.Drawing.Point(330, 13)
+        Me.lblServer.Location = New System.Drawing.Point(430, 13)
         Me.lblServer.Name = "lblServer"
         Me.lblServer.Size = New System.Drawing.Size(93, 13)
         Me.lblServer.TabIndex = 5
@@ -92,7 +92,7 @@ Partial Class backup
         '
         'txtServer
         '
-        Me.txtServer.Location = New System.Drawing.Point(327, 31)
+        Me.txtServer.Location = New System.Drawing.Point(427, 31)
         Me.txtServer.Name = "txtServer"
         Me.txtServer.Size = New System.Drawing.Size(203, 20)
         Me.txtServer.TabIndex = 4
@@ -279,16 +279,6 @@ Partial Class backup
         Me.ckbDetectProxy.Text = "Automatically detect proxy settings"
         Me.ckbDetectProxy.UseVisualStyleBackColor = True
         '
-        'ckbSSO
-        '
-        Me.ckbSSO.AutoSize = True
-        Me.ckbSSO.Location = New System.Drawing.Point(550, 24)
-        Me.ckbSSO.Name = "ckbSSO"
-        Me.ckbSSO.Size = New System.Drawing.Size(70, 17)
-        Me.ckbSSO.TabIndex = 24
-        Me.ckbSSO.Text = "Use SSO"
-        Me.ckbSSO.UseVisualStyleBackColor = True
-        '
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
@@ -312,20 +302,29 @@ Partial Class backup
         Me.cmbPassword.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbPassword.FormattingEnabled = True
         Me.cmbPassword.Items.AddRange(New Object() {"Please choose...", "QuickBase Password", "QuickBase User Token"})
-        Me.cmbPassword.Location = New System.Drawing.Point(157, 4)
+        Me.cmbPassword.Location = New System.Drawing.Point(222, 4)
         Me.cmbPassword.Name = "cmbPassword"
-        Me.cmbPassword.Size = New System.Drawing.Size(141, 21)
+        Me.cmbPassword.Size = New System.Drawing.Size(184, 21)
         Me.cmbPassword.TabIndex = 47
+        '
+        'btnAppToken
+        '
+        Me.btnAppToken.Location = New System.Drawing.Point(171, 54)
+        Me.btnAppToken.Name = "btnAppToken"
+        Me.btnAppToken.Size = New System.Drawing.Size(19, 20)
+        Me.btnAppToken.TabIndex = 80
+        Me.btnAppToken.Text = "?"
+        Me.btnAppToken.UseVisualStyleBackColor = True
         '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(842, 773)
+        Me.Controls.Add(Me.btnAppToken)
         Me.Controls.Add(Me.cmbPassword)
         Me.Controls.Add(Me.ckbAppFolders)
         Me.Controls.Add(Me.lblProgress)
-        Me.Controls.Add(Me.ckbSSO)
         Me.Controls.Add(Me.ckbDetectProxy)
         Me.Controls.Add(Me.pb)
         Me.Controls.Add(Me.ckbDateFolders)
@@ -381,10 +380,10 @@ Partial Class backup
     Friend WithEvents ToolTip1 As System.Windows.Forms.ToolTip
     Friend WithEvents pb As System.Windows.Forms.ProgressBar
     Friend WithEvents ckbDetectProxy As System.Windows.Forms.CheckBox
-    Friend WithEvents ckbSSO As System.Windows.Forms.CheckBox
     Friend WithEvents ContextMenuStrip1 As System.Windows.Forms.ContextMenuStrip
     Friend WithEvents RetrieveTheTableReportsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents lblProgress As System.Windows.Forms.Label
     Friend WithEvents ckbAppFolders As CheckBox
     Friend WithEvents cmbPassword As ComboBox
+    Friend WithEvents btnAppToken As Button
 End Class

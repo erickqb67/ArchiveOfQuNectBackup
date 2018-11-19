@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PublishUrlHistory>C:\QuNect\QuNectBackup\QuNectBackup\publish\|ftp://ftp.qunect.com/download/QuNectBackup/|ftp://ftp.qunect.com/trial/QuNectBackup/</PublishUrlHistory>
-    <InstallUrlHistory>https://www.qunect.com/download/QuNectBackup/|https://www.qunectllc.com/download/QuNectBackup/|http://www.qunect.com/download/QuNectBackup/|http://www.qunect.com/trial/QuNectBackup/|http://qunect.com/trial/QuNectBackup/</InstallUrlHistory>
+    <InstallUrlHistory>https://qunect.com/download/QuNectBackup/|https://www.qunect.com/download/QuNectBackup/|https://www.qunectllc.com/download/QuNectBackup/|http://www.qunect.com/download/QuNectBackup/|http://www.qunect.com/trial/QuNectBackup/</InstallUrlHistory>
     <SupportUrlHistory>http://www.qunect.com</SupportUrlHistory>
     <UpdateUrlHistory>
     </UpdateUrlHistory>

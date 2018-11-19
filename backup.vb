@@ -10,7 +10,7 @@ Imports System.Text.RegularExpressions
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.72"
+    Private Const qunectBackupVersion = "1.0.0.76"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -69,11 +69,7 @@ Public Class backup
             ckbDetectProxy.Checked = False
         End If
         Dim samlSetting As String = GetSetting(AppName, "Credentials", "samlsetting", "0")
-        If samlSetting = "1" Then
-            ckbSSO.Checked = True
-        Else
-            ckbSSO.Checked = False
-        End If
+
 
         txtBackupFolder.Text = GetSetting(AppName, "location", "path")
         cmdLineArgs = System.Environment.GetCommandLineArgs()
@@ -90,13 +86,23 @@ Public Class backup
         Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
         Me.Text = "QuNect Backup " & qunectBackupVersion
     End Sub
+    Sub showHideControls()
+        cmbPassword.Visible = txtUsername.Text.Length > 0
+        txtPassword.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex <> 0
+        txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
+        lblServer.Visible = txtServer.Visible
+        lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 1
+        txtAppToken.Visible = lblAppToken.Visible
 
+    End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
         SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
+        showHideControls()
     End Sub
 
     Private Sub txtPassword_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtPassword.TextChanged
         SaveSetting(AppName, "Credentials", "password", txtPassword.Text)
+        showHideControls()
     End Sub
 
     Private Sub btnListTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnListTables.Click
@@ -234,6 +240,7 @@ Public Class backup
 
     Private Sub txtServer_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtServer.TextChanged
         SaveSetting(AppName, "Credentials", "server", txtServer.Text)
+        showHideControls()
     End Sub
     Private Sub btnFolder_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnFolder.Click
         Dim MyFolderBrowser As New System.Windows.Forms.FolderBrowserDialog
@@ -317,9 +324,7 @@ Public Class backup
         If ckbDetectProxy.Checked Then
             buildConnectionString &= ";DETECTPROXY=1"
         End If
-        If ckbSSO.Checked Then
-            buildConnectionString &= ";SAML=1"
-        End If
+
         If appdbid.Length Then
             buildConnectionString &= ";APPID=" & appdbid & ";APPNAME=" & qdbAppName
         End If
@@ -456,7 +461,7 @@ Public Class backup
         Dim recordCount As Integer = dr.GetValue(0)
         quNectCmd.Dispose()
 
-        quickBaseSQL = "select fid, field_type, formula, mode from """ & dbid & "~fields"""
+        quickBaseSQL = "select fid, field_type, formula, mode, label from """ & dbid & "~fields"""
         Try
             quNectCmd = New OdbcCommand(quickBaseSQL, quNectConn)
             dr = quNectCmd.ExecuteReader()
@@ -480,6 +485,7 @@ Public Class backup
         Dim fieldTypes As String = ""
         Dim period As String = ""
         While (dr.Read())
+            Dim label As String = dr.GetString(4)
             Dim mode As String = dr.GetString(3)
             Dim formula As String = dr.GetString(2)
             Dim field_type As String = dr.GetString(1)
@@ -716,14 +722,6 @@ Public Class backup
         lstBackup.Items.RemoveAt(lstBackup.SelectedIndex)
     End Sub
 
-
-    Private Sub ckbSSO_CheckStateChanged(sender As Object, e As EventArgs) Handles ckbSSO.CheckStateChanged
-        If ckbSSO.Checked Then
-            SaveSetting(AppName, "Credentials", "samlsetting", "1")
-        Else
-            SaveSetting(AppName, "Credentials", "samlsetting", "0")
-        End If
-    End Sub
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
         If (qdbVer.year < 16) Or ((qdbVer.year = 16) And ((qdbVer.major <= 6) And (qdbVer.minor < 20))) Then
             MsgBox("To access this feature please install the latest version from http://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
@@ -750,11 +748,10 @@ Public Class backup
     End Sub
     Private Sub cmbPassword_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPassword.SelectedIndexChanged
         SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
-        If cmbPassword.SelectedIndex = 0 Then
-            txtPassword.Enabled = False
-        Else
-            txtPassword.Enabled = True
-        End If
+        showHideControls()
+    End Sub
+    Private Sub btnAppToken_Click(sender As Object, e As EventArgs) Handles btnAppToken.Click
+        Process.Start("https://help.quickbase.com/user-assistance/app_tokens.html")
     End Sub
 End Class
 
