@@ -4,19 +4,22 @@ Imports System.IO
 Imports System.Text
 Imports System.Data.Odbc
 Imports System.Text.RegularExpressions
+Imports System.Configuration
 
 
 
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.79"
+    Private Const qunectBackupVersion = "1.0.0.83"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
     Private appdbid As String = ""
     Private qdbAppName As String = ""
     Private dbidToAppName As New Dictionary(Of String, String)
+    Dim cAppConfig As Configuration = ConfigurationManager.OpenExeConfiguration(Application.StartupPath & "\QuNectBackup.exe")
+    Dim appSettings As AppSettingsSection = cAppConfig.AppSettings
     Private Class qdbVersion
         Public year As Integer
         Public major As Integer
@@ -32,12 +35,21 @@ Public Class backup
         If lstBackup.Visible = True Then
             Dim i As Integer
             Dim dbids As String = ""
+            Dim tables As String = ""
             Dim semicolon As String = ""
+            Dim hardReturn = ""
             For i = 0 To lstBackup.Items.Count - 1
                 dbids &= semicolon & lstBackup.Items(i).Substring(lstBackup.Items(i).LastIndexOf(" ") + 1)
+                tables &= hardReturn & lstBackup.Items(i)
                 semicolon = ";"
+                hardReturn = vbCrLf
             Next
-
+            If appSettings.Settings.Item("tables") Is Nothing Then
+                appSettings.Settings.Add("tables", tables)
+            Else
+                appSettings.Settings.Item("tables").Value = tables
+            End If
+            cAppConfig.Save(ConfigurationSaveMode.Modified)
             SaveSetting(AppName, "backup", "dbids", dbids)
         End If
     End Sub
@@ -72,6 +84,12 @@ Public Class backup
 
 
         txtBackupFolder.Text = GetSetting(AppName, "location", "path")
+        If appSettings.Settings.Item("location") IsNot Nothing AndAlso appSettings.Settings.Item("location").Value.Length > 0 Then
+            txtBackupFolder.Text = appSettings.Settings.Item("location").Value
+        Else
+            appSettings.Settings.Add("location", txtBackupFolder.Text)
+            cAppConfig.Save(ConfigurationSaveMode.Modified)
+        End If
         cmdLineArgs = System.Environment.GetCommandLineArgs()
         If cmdLineArgs.Length > 1 Then
             If cmdLineArgs(1) = "auto" Then
@@ -158,8 +176,19 @@ Public Class backup
     Sub listTablesFromGetSchema(tables As DataTable)
 
         Dim dbids As String = GetSetting(AppName, "backup", "dbids")
+        Dim configTableList As String = ""
+        If appSettings.Settings.Item("tables") IsNot Nothing Then
+            configTableList = appSettings.Settings.Item("tables").Value
+        End If
         Dim dbidArray As New ArrayList
-        dbidArray.AddRange(dbids.Split(";"c))
+        If configTableList.Length > dbids.Length Then
+            dbids = configTableList
+            Dim separator() As String = {vbCrLf}
+            dbidArray.AddRange(dbids.Split(separator, StringSplitOptions.RemoveEmptyEntries))
+        Else
+            dbidArray.AddRange(dbids.Split(";"c))
+        End If
+
         Dim i As Integer
         Dim dbidCollection As New Collection
         For i = 0 To dbidArray.Count - 1
@@ -237,7 +266,7 @@ Public Class backup
         lblBackup.Visible = True
         Me.Cursor = Cursors.Default
     End Sub
-    
+
 
     Private Sub txtServer_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtServer.TextChanged
         SaveSetting(AppName, "Credentials", "server", txtServer.Text)
@@ -255,6 +284,8 @@ Public Class backup
         If dlgResult = Windows.Forms.DialogResult.OK Then
             txtBackupFolder.Text = MyFolderBrowser.SelectedPath
             SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
+            appSettings.Settings.Item("location").Value = txtBackupFolder.Text
+            cAppConfig.Save(ConfigurationSaveMode.Modified)
         End If
     End Sub
     Private Sub btnAddToBackupList_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAddToBackupList.Click
@@ -448,7 +479,7 @@ Public Class backup
                 backupTable.result = False
             End If
 
-            If Not quNectCmd Is Nothing Then
+            If quNectCmd IsNot Nothing Then
                 quNectCmd.Dispose()
             End If
             Exit Function
