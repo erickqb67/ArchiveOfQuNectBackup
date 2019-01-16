@@ -11,7 +11,7 @@ Imports System.Configuration
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.83"
+    Private Const qunectBackupVersion = "1.0.0.85"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
