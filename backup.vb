@@ -11,7 +11,7 @@ Imports System.Configuration
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.85"
+    Private Const qunectBackupVersion = "1.0.0.87"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -113,6 +113,17 @@ Public Class backup
         txtAppToken.Visible = lblAppToken.Visible
         btnAppToken.Visible = lblAppToken.Visible
         btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 2
+        ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
+        cmbPassword.Visible = txtUsername.Text.Length > 0
+        txtPassword.Visible = cmbPassword.SelectedIndex > 0
+        txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex > 0
+        lblServer.Visible = txtServer.Visible
+        txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = 1 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
+        lblAppToken.Visible = txtAppToken.Visible
+        btnAppToken.Visible = txtAppToken.Visible
+        btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = 2
+        btnListTables.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex > 0 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
+
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
         SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
@@ -146,7 +157,7 @@ Public Class backup
             End If
 
             If qdbVer.year < 17 Then
-                MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunectllc.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
+                MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
                 quNectConn.Dispose()
                 Me.Cursor = Cursors.Default
                 Exit Sub
@@ -159,7 +170,7 @@ Public Class backup
             quNectConn.Dispose()
         Catch excpt As Exception
             Me.Cursor = Cursors.Default
-            If excpt.Message.StartsWith("ERROR [IM003]") Or excpt.Message.Contains("Data source name not found") Then
+            If excpt.Message.Contains("Data source name not found") Then
                 MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
             Else
                 MsgBox(excpt.Message.Substring(13), MsgBoxStyle.OkOnly, AppName)
