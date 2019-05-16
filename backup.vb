@@ -11,7 +11,7 @@ Imports System.Configuration
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.87"
+    Private Const qunectBackupVersion = "1.0.0.88"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -173,7 +173,7 @@ Public Class backup
             If excpt.Message.Contains("Data source name not found") Then
                 MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(excpt.Message.Substring(13), MsgBoxStyle.OkOnly, AppName)
+                MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
             End If
             Exit Sub
         End Try
@@ -359,6 +359,10 @@ Public Class backup
         backup()
     End Sub
     Private Function buildConnectionString(additionalFolders As String) As String
+        If txtPassword.Text.Contains(";") Then
+            Throw New System.Exception("Although Quick Base allows semicolons in passwords the ODBC standard does not permit semicolons." & vbCrLf & "Please change your Quick Base password to eliminate semicolons or use a Quick Base user token instead of a password.")
+            Return ""
+        End If
         buildConnectionString = "FIELDNAMECHARACTERS=all;uid=" & txtUsername.Text
         buildConnectionString &= ";pwd=" & txtPassword.Text
         buildConnectionString &= ";driver={QuNect ODBC for QuickBase};IGNOREDUPEFIELDNAMES=1;"
