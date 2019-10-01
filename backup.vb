@@ -11,7 +11,6 @@ Imports System.Configuration
 Public Class backup
 
     Private Const AppName = "QuNectBackup"
-    Private Const qunectBackupVersion = "1.0.0.88"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
     Private automode As Boolean = False
@@ -102,7 +101,7 @@ Public Class backup
             End If
         End If
         Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
-        Me.Text = "QuNect Backup " & qunectBackupVersion
+        Me.Text = "QuNect Backup " & myBuildInfo.ProductVersion
     End Sub
     Sub showHideControls()
         cmbPassword.Visible = txtUsername.Text.Length > 0
@@ -199,12 +198,16 @@ Public Class backup
         Else
             dbidArray.AddRange(dbids.Split(";"c))
         End If
+        Dim dbid As String
+        Dim getDBIDfromdbName As New Regex("([a-z0-9~]+)$")
 
         Dim i As Integer
         Dim dbidCollection As New Collection
         For i = 0 To dbidArray.Count - 1
             Try
-                dbidCollection.Add(dbidArray(i), dbidArray(i))
+                Dim dbidMatch As Match = getDBIDfromdbName.Match(dbidArray(i))
+                dbid = dbidMatch.Value
+                dbidCollection.Add(dbid, dbid)
             Catch excpt As Exception
                 'ignore dupes
             End Try
@@ -216,11 +219,9 @@ Public Class backup
         Dim dbName As String
         Dim applicationName As String = ""
         Dim prevAppName As String = ""
-        Dim dbid As String
         pb.Value = 0
         pb.Visible = True
         pb.Maximum = tables.Rows.Count
-        Dim getDBIDfromdbName As New Regex("([a-z0-9~]+)$")
         'need to make a collection of current items in lstBackup
         Dim backupDBIDs As New Collection
         For i = 0 To lstBackup.Items.Count - 1
@@ -367,7 +368,6 @@ Public Class backup
         buildConnectionString &= ";pwd=" & txtPassword.Text
         buildConnectionString &= ";driver={QuNect ODBC for QuickBase};IGNOREDUPEFIELDNAMES=1;"
         buildConnectionString &= ";quickbaseserver=" & txtServer.Text
-        buildConnectionString &= ";APPTOKEN=" & txtAppToken.Text
         If ckbDetectProxy.Checked Then
             buildConnectionString &= ";DETECTPROXY=1"
         End If
@@ -399,6 +399,7 @@ Public Class backup
             Return ""
         ElseIf cmbPassword.SelectedIndex = 1 Then
             buildConnectionString &= ";PWDISPASSWORD=1"
+            buildConnectionString &= ";APPTOKEN=" & txtAppToken.Text
         Else
             buildConnectionString &= ";PWDISPASSWORD=0"
         End If
