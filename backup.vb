@@ -28,6 +28,11 @@ Public Class backup
         Public result As Boolean
         Public okayCancel As DialogResult
     End Class
+    Enum PasswordOrToken
+        Neither = 0
+        password = 1
+        token = 2
+    End Enum
     Private qdbVer As qdbVersion = New qdbVersion
 
     Private Sub backup_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
@@ -56,7 +61,7 @@ Public Class backup
 
     Private Sub backup_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
-        cmbPassword.SelectedIndex = CInt(GetSetting(AppName, "Credentials", "passwordOrToken", "0"))
+        cmbPassword.SelectedIndex = CInt(GetSetting(AppName, "Credentials", "passwordOrToken", CStr(PasswordOrToken.Neither)))
         txtPassword.Text = GetSetting(AppName, "Credentials", "password")
         txtServer.Text = GetSetting(AppName, "Credentials", "server", "")
         txtAppToken.Text = GetSetting(AppName, "Credentials", "apptoken", "")
@@ -91,14 +96,36 @@ Public Class backup
         End If
         cmdLineArgs = System.Environment.GetCommandLineArgs()
         If cmdLineArgs.Length > 1 Then
-            If cmdLineArgs(1) = "auto" Then
-                automode = True
-                qdbAppName = ""
-                appdbid = ""
-                listTables()
-                backup()
-                Me.Close()
+            qdbAppName = ""
+            appdbid = ""
+            Dim dbids As String = ""
+            If cmdLineArgs.Length >= 9 Then
+                txtBackupFolder.Text = cmdLineArgs(1)
+                dbids = cmdLineArgs(2)
+                txtUsername.Text = cmdLineArgs(3)
+                txtPassword.Text = cmdLineArgs(4)
+                txtServer.Text = cmdLineArgs(5)
+                If cmdLineArgs(6) = "1" Then
+                    ckbDetectProxy.Checked = True
+                Else
+                    ckbDetectProxy.Checked = False
+                End If
+                If cmdLineArgs(7) = "1" Then
+                    ckbDateFolders.Checked = True
+                Else
+                    ckbDateFolders.Checked = False
+                End If
+                If cmdLineArgs(8) = "1" Then
+                    ckbAppFolders.Checked = True
+                Else
+                    ckbAppFolders.Checked = False
+                End If
+                cmbPassword.SelectedIndex = PasswordOrToken.token
             End If
+            automode = True
+            listTables(dbids)
+            backup()
+            Me.Close()
         End If
         Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
         Me.Text = "QuNect Backup " & myBuildInfo.ProductVersion
@@ -108,19 +135,19 @@ Public Class backup
         txtPassword.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex <> 0
         txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
         lblServer.Visible = txtServer.Visible
-        lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 1
+        lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.password
         txtAppToken.Visible = lblAppToken.Visible
         btnAppToken.Visible = lblAppToken.Visible
-        btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = 2
+        btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.token
         ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
         cmbPassword.Visible = txtUsername.Text.Length > 0
         txtPassword.Visible = cmbPassword.SelectedIndex > 0
         txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex > 0
         lblServer.Visible = txtServer.Visible
-        txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = 1 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
+        txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.password And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
         lblAppToken.Visible = txtAppToken.Visible
         btnAppToken.Visible = txtAppToken.Visible
-        btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = 2
+        btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.token
         btnListTables.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex > 0 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
 
     End Sub
@@ -137,9 +164,9 @@ Public Class backup
     Private Sub btnListTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnListTables.Click
         qdbAppName = ""
         appdbid = ""
-        listTables()
+        listTables("")
     End Sub
-    Private Sub listTables()
+    Private Sub listTables(dbids As String)
         Me.Cursor = Cursors.WaitCursor
         tvAppsTables.Visible = True
         Try
@@ -163,7 +190,7 @@ Public Class backup
             End If
 
             Dim tableOfTables As DataTable = quNectConn.GetSchema("Tables")
-            listTablesFromGetSchema(tableOfTables)
+            listTablesFromGetSchema(tableOfTables, dbids)
             Me.Cursor = Cursors.Default
             quNectConn.Close()
             quNectConn.Dispose()
@@ -183,12 +210,13 @@ Public Class backup
             MsgBox("Operation timed out. Please try again.", MsgBoxStyle.OkOnly, AppName)
         End If
     End Sub
-    Sub listTablesFromGetSchema(tables As DataTable)
-
-        Dim dbids As String = GetSetting(AppName, "backup", "dbids")
+    Sub listTablesFromGetSchema(tables As DataTable, dbids As String)
         Dim configTableList As String = ""
-        If appSettings.Settings.Item("tables") IsNot Nothing Then
-            configTableList = appSettings.Settings.Item("tables").Value
+        If dbids = "" Then
+            dbids = GetSetting(AppName, "backup", "dbids")
+            If appSettings.Settings.Item("tables") IsNot Nothing Then
+                configTableList = appSettings.Settings.Item("tables").Value
+            End If
         End If
         Dim dbidArray As New ArrayList
         If configTableList.Length > dbids.Length Then
@@ -393,11 +421,11 @@ Public Class backup
             Directory.CreateDirectory(folderPath)
             buildConnectionString &= ";filepath=" & folderPath
         End If
-        If cmbPassword.SelectedIndex = 0 Then
+        If cmbPassword.SelectedIndex = PasswordOrToken.Neither Then
             cmbPassword.Focus()
             Throw New System.Exception("Please indicate whether you are using a password or a user token.")
             Return ""
-        ElseIf cmbPassword.SelectedIndex = 1 Then
+        ElseIf cmbPassword.SelectedIndex = PasswordOrToken.password Then
             buildConnectionString &= ";PWDISPASSWORD=1"
             buildConnectionString &= ";APPTOKEN=" & txtAppToken.Text
         Else
@@ -785,7 +813,7 @@ Public Class backup
         Else
             qdbAppName = tvAppsTables.SelectedNode.Text
         End If
-        listTables()
+        listTables("")
     End Sub
 
     Private Sub tvAppsTables_NodeMouseClick(sender As Object, e As TreeNodeMouseClickEventArgs) Handles tvAppsTables.NodeMouseClick
