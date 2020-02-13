@@ -99,7 +99,7 @@ Public Class backup
             qdbAppName = ""
             appdbid = ""
             Dim dbids As String = ""
-            If cmdLineArgs.Length >= 9 Then
+            If cmdLineArgs.Length >= 10 Then
                 txtBackupFolder.Text = cmdLineArgs(1)
                 dbids = cmdLineArgs(2)
                 txtUsername.Text = cmdLineArgs(3)
@@ -120,9 +120,10 @@ Public Class backup
                 Else
                     ckbAppFolders.Checked = False
                 End If
+                cmbAttachments.SelectedIndex = CInt(cmdLineArgs(9))
                 cmbPassword.SelectedIndex = PasswordOrToken.token
-            End If
-            automode = True
+                End If
+                automode = True
             listTables(dbids)
             backup()
             Me.Close()
@@ -148,7 +149,11 @@ Public Class backup
         lblAppToken.Visible = txtAppToken.Visible
         btnAppToken.Visible = txtAppToken.Visible
         btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.token
-        btnListTables.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex > 0 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
+        Dim showListTables As Boolean = (txtUsername.Text.Length > 0) And (cmbPassword.SelectedIndex > 0) And (txtPassword.Text.Length > 0) And (txtServer.Text.Length > 0)
+        btnListTables.Visible = showListTables
+        btnTest.Visible = showListTables
+        'ckbFilesByField.Visible = lstBackup.Items.Count = 1
+        cmbAttachmentFolders.Visible = ckbFilesByField.Visible
 
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
@@ -212,6 +217,10 @@ Public Class backup
     End Sub
     Sub listTablesFromGetSchema(tables As DataTable, dbids As String)
         Dim configTableList As String = ""
+        Dim getDBIDfromdbName As New Regex("([a-z0-9~]+)$")
+        Dim dbid As String
+
+        Dim i As Integer
         If dbids = "" Then
             dbids = GetSetting(AppName, "backup", "dbids")
             If appSettings.Settings.Item("tables") IsNot Nothing Then
@@ -219,17 +228,21 @@ Public Class backup
             End If
         End If
         Dim dbidArray As New ArrayList
-        If configTableList.Length > dbids.Length Then
+        If dbids.ToLower() = "all" Then
+            For i = 0 To tables.Rows.Count - 1
+                Dim table As String = tables.Rows(i)(2)
+                Dim dbidMatch As Match = getDBIDfromdbName.Match(table)
+                dbid = dbidMatch.Value
+                dbidArray.Add(dbid)
+            Next
+
+        ElseIf configTableList.Length > dbids.Length Then
             dbids = configTableList
             Dim separator() As String = {vbCrLf}
             dbidArray.AddRange(dbids.Split(separator, StringSplitOptions.RemoveEmptyEntries))
         Else
             dbidArray.AddRange(dbids.Split(";"c))
         End If
-        Dim dbid As String
-        Dim getDBIDfromdbName As New Regex("([a-z0-9~]+)$")
-
-        Dim i As Integer
         Dim dbidCollection As New Collection
         For i = 0 To dbidArray.Count - 1
             Try
@@ -304,6 +317,7 @@ Public Class backup
         btnRemove.Visible = True
         lstBackup.Visible = True
         lblBackup.Visible = True
+        showHideControls()
         Me.Cursor = Cursors.Default
     End Sub
 
@@ -352,7 +366,10 @@ Public Class backup
                 MsgBox("Please select a table first", MsgBoxStyle.OkOnly, AppName)
             End Try
         End If
+        showHideControls()
     End Sub
+
+
     Private Sub addToBackupList(ByVal appTable As String)
         If appTable.Length = 0 Then
             Exit Sub
@@ -372,6 +389,7 @@ Public Class backup
             lstBackup.Items.Add(appTable)
         Catch excpt As Exception
         End Try
+        showHideControls()
     End Sub
     Private Sub tvAppsTables_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles tvAppsTables.DoubleClick
         If tvAppsTables.SelectedNode.Level <> 1 Then
@@ -767,6 +785,7 @@ Public Class backup
                 End If
             End If
         End If
+        showHideControls()
     End Sub
 
     Private Sub ckbDateFolders_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbDateFolders.CheckStateChanged
@@ -796,6 +815,7 @@ Public Class backup
             Exit Sub
         End If
         lstBackup.Items.RemoveAt(lstBackup.SelectedIndex)
+        showHideControls()
     End Sub
 
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
@@ -832,6 +852,35 @@ Public Class backup
 
     Private Sub btnUserToken_Click(sender As Object, e As EventArgs) Handles btnUserToken.Click
         Process.Start("https://qunect.com/flash/UserToken.html")
+    End Sub
+    Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
+        Me.Cursor = Cursors.WaitCursor
+        Try
+            Dim connectionString As String = buildConnectionString("")
+            Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
+            quNectConn.Open()
+        Catch excpt As Exception
+            Me.Cursor = Cursors.Default
+            If excpt.Message.Contains("Data source name not found") Then
+                MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
+            Else
+                MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+            End If
+            Exit Sub
+        End Try
+        Me.Cursor = Cursors.Default
+        MsgBox("Success", MsgBoxStyle.OkOnly, AppName)
+    End Sub
+    Public Sub tvAppsTables_ItemDrag(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ItemDragEventArgs) Handles tvAppsTables.ItemDrag
+        lstBackup.Tag = e.Item.Fullpath()
+        DoDragDrop(e.Item, DragDropEffects.Move)
+    End Sub
+
+    Private Sub lstBackup_DragEnter(sender As Object, e As DragEventArgs) Handles lstBackup.DragEnter
+        e.Effect = DragDropEffects.Move
+    End Sub
+    Public Sub lstBackup_DragDrop(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles lstBackup.DragDrop
+        addToBackupList(lstBackup.Tag)
     End Sub
 End Class
 

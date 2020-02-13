@@ -55,12 +55,21 @@ Partial Class backup
         Me.cmbPassword = New System.Windows.Forms.ComboBox()
         Me.btnAppToken = New System.Windows.Forms.Button()
         Me.btnUserToken = New System.Windows.Forms.Button()
+        Me.tabs = New System.Windows.Forms.TabControl()
+        Me.tabAuth = New System.Windows.Forms.TabPage()
+        Me.btnTest = New System.Windows.Forms.Button()
+        Me.tabBackup = New System.Windows.Forms.TabPage()
+        Me.cmbAttachmentFolders = New System.Windows.Forms.ComboBox()
+        Me.ckbFilesByField = New System.Windows.Forms.CheckBox()
         Me.ContextMenuStrip1.SuspendLayout()
+        Me.tabs.SuspendLayout()
+        Me.tabAuth.SuspendLayout()
+        Me.tabBackup.SuspendLayout()
         Me.SuspendLayout()
         '
         'txtUsername
         '
-        Me.txtUsername.Location = New System.Drawing.Point(19, 31)
+        Me.txtUsername.Location = New System.Drawing.Point(13, 34)
         Me.txtUsername.Name = "txtUsername"
         Me.txtUsername.Size = New System.Drawing.Size(197, 20)
         Me.txtUsername.TabIndex = 0
@@ -68,7 +77,7 @@ Partial Class backup
         'lblUsername
         '
         Me.lblUsername.AutoSize = True
-        Me.lblUsername.Location = New System.Drawing.Point(22, 12)
+        Me.lblUsername.Location = New System.Drawing.Point(16, 15)
         Me.lblUsername.Name = "lblUsername"
         Me.lblUsername.Size = New System.Drawing.Size(110, 13)
         Me.lblUsername.TabIndex = 1
@@ -76,7 +85,7 @@ Partial Class backup
         '
         'txtPassword
         '
-        Me.txtPassword.Location = New System.Drawing.Point(222, 31)
+        Me.txtPassword.Location = New System.Drawing.Point(13, 96)
         Me.txtPassword.Name = "txtPassword"
         Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
         Me.txtPassword.Size = New System.Drawing.Size(184, 20)
@@ -85,7 +94,7 @@ Partial Class backup
         'lblServer
         '
         Me.lblServer.AutoSize = True
-        Me.lblServer.Location = New System.Drawing.Point(433, 13)
+        Me.lblServer.Location = New System.Drawing.Point(12, 186)
         Me.lblServer.Name = "lblServer"
         Me.lblServer.Size = New System.Drawing.Size(93, 13)
         Me.lblServer.TabIndex = 5
@@ -93,7 +102,7 @@ Partial Class backup
         '
         'txtServer
         '
-        Me.txtServer.Location = New System.Drawing.Point(434, 31)
+        Me.txtServer.Location = New System.Drawing.Point(13, 204)
         Me.txtServer.Name = "txtServer"
         Me.txtServer.Size = New System.Drawing.Size(203, 20)
         Me.txtServer.TabIndex = 4
@@ -101,7 +110,7 @@ Partial Class backup
         'lblAppToken
         '
         Me.lblAppToken.AutoSize = True
-        Me.lblAppToken.Location = New System.Drawing.Point(22, 58)
+        Me.lblAppToken.Location = New System.Drawing.Point(16, 131)
         Me.lblAppToken.Name = "lblAppToken"
         Me.lblAppToken.Size = New System.Drawing.Size(148, 13)
         Me.lblAppToken.TabIndex = 7
@@ -109,7 +118,7 @@ Partial Class backup
         '
         'txtAppToken
         '
-        Me.txtAppToken.Location = New System.Drawing.Point(19, 77)
+        Me.txtAppToken.Location = New System.Drawing.Point(13, 150)
         Me.txtAppToken.Name = "txtAppToken"
         Me.txtAppToken.Size = New System.Drawing.Size(258, 20)
         Me.txtAppToken.TabIndex = 6
@@ -117,7 +126,7 @@ Partial Class backup
         'tvAppsTables
         '
         Me.tvAppsTables.ContextMenuStrip = Me.ContextMenuStrip1
-        Me.tvAppsTables.Location = New System.Drawing.Point(21, 176)
+        Me.tvAppsTables.Location = New System.Drawing.Point(5, 137)
         Me.tvAppsTables.Name = "tvAppsTables"
         Me.tvAppsTables.Size = New System.Drawing.Size(369, 577)
         Me.tvAppsTables.TabIndex = 8
@@ -137,7 +146,7 @@ Partial Class backup
         '
         'btnListTables
         '
-        Me.btnListTables.Location = New System.Drawing.Point(210, 147)
+        Me.btnListTables.Location = New System.Drawing.Point(194, 108)
         Me.btnListTables.Name = "btnListTables"
         Me.btnListTables.Size = New System.Drawing.Size(76, 23)
         Me.btnListTables.TabIndex = 9
@@ -146,7 +155,7 @@ Partial Class backup
         '
         'btnFolder
         '
-        Me.btnFolder.Location = New System.Drawing.Point(802, 74)
+        Me.btnFolder.Location = New System.Drawing.Point(506, 25)
         Me.btnFolder.Name = "btnFolder"
         Me.btnFolder.Size = New System.Drawing.Size(28, 23)
         Me.btnFolder.TabIndex = 10
@@ -156,7 +165,7 @@ Partial Class backup
         'lblBackupFolder
         '
         Me.lblBackupFolder.AutoSize = True
-        Me.lblBackupFolder.Location = New System.Drawing.Point(565, 57)
+        Me.lblBackupFolder.Location = New System.Drawing.Point(269, 8)
         Me.lblBackupFolder.Name = "lblBackupFolder"
         Me.lblBackupFolder.Size = New System.Drawing.Size(104, 13)
         Me.lblBackupFolder.TabIndex = 11
@@ -164,8 +173,9 @@ Partial Class backup
         '
         'lstBackup
         '
+        Me.lstBackup.AllowDrop = True
         Me.lstBackup.FormattingEnabled = True
-        Me.lstBackup.Location = New System.Drawing.Point(433, 177)
+        Me.lstBackup.Location = New System.Drawing.Point(417, 138)
         Me.lstBackup.Name = "lstBackup"
         Me.lstBackup.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended
         Me.lstBackup.Size = New System.Drawing.Size(397, 576)
@@ -174,7 +184,7 @@ Partial Class backup
         '
         'btnAddToBackupList
         '
-        Me.btnAddToBackupList.Location = New System.Drawing.Point(396, 388)
+        Me.btnAddToBackupList.Location = New System.Drawing.Point(380, 334)
         Me.btnAddToBackupList.Name = "btnAddToBackupList"
         Me.btnAddToBackupList.Size = New System.Drawing.Size(31, 24)
         Me.btnAddToBackupList.TabIndex = 13
@@ -186,7 +196,7 @@ Partial Class backup
         '
         'btnBackup
         '
-        Me.btnBackup.Location = New System.Drawing.Point(559, 148)
+        Me.btnBackup.Location = New System.Drawing.Point(543, 109)
         Me.btnBackup.Name = "btnBackup"
         Me.btnBackup.Size = New System.Drawing.Size(83, 23)
         Me.btnBackup.TabIndex = 14
@@ -197,7 +207,7 @@ Partial Class backup
         'lblAttachments
         '
         Me.lblAttachments.AutoSize = True
-        Me.lblAttachments.Location = New System.Drawing.Point(296, 58)
+        Me.lblAttachments.Location = New System.Drawing.Point(10, 9)
         Me.lblAttachments.Name = "lblAttachments"
         Me.lblAttachments.Size = New System.Drawing.Size(85, 13)
         Me.lblAttachments.TabIndex = 15
@@ -205,9 +215,10 @@ Partial Class backup
         '
         'cmbAttachments
         '
+        Me.cmbAttachments.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbAttachments.FormattingEnabled = True
         Me.cmbAttachments.Items.AddRange(New Object() {"Do not download", "Download current revision and list file URL", "Download all revisions and current rev file URL", "Download all revisions and all file URLs"})
-        Me.cmbAttachments.Location = New System.Drawing.Point(292, 76)
+        Me.cmbAttachments.Location = New System.Drawing.Point(6, 27)
         Me.cmbAttachments.Name = "cmbAttachments"
         Me.cmbAttachments.Size = New System.Drawing.Size(238, 21)
         Me.cmbAttachments.TabIndex = 16
@@ -215,14 +226,14 @@ Partial Class backup
         'txtBackupFolder
         '
         Me.txtBackupFolder.Enabled = False
-        Me.txtBackupFolder.Location = New System.Drawing.Point(559, 76)
+        Me.txtBackupFolder.Location = New System.Drawing.Point(263, 27)
         Me.txtBackupFolder.Name = "txtBackupFolder"
         Me.txtBackupFolder.Size = New System.Drawing.Size(237, 20)
         Me.txtBackupFolder.TabIndex = 17
         '
         'btnRemove
         '
-        Me.btnRemove.Location = New System.Drawing.Point(396, 436)
+        Me.btnRemove.Location = New System.Drawing.Point(380, 364)
         Me.btnRemove.Name = "btnRemove"
         Me.btnRemove.Size = New System.Drawing.Size(31, 24)
         Me.btnRemove.TabIndex = 18
@@ -235,7 +246,7 @@ Partial Class backup
         'lblBackup
         '
         Me.lblBackup.AutoSize = True
-        Me.lblBackup.Location = New System.Drawing.Point(439, 152)
+        Me.lblBackup.Location = New System.Drawing.Point(423, 113)
         Me.lblBackup.Name = "lblBackup"
         Me.lblBackup.Size = New System.Drawing.Size(91, 13)
         Me.lblBackup.TabIndex = 19
@@ -245,7 +256,7 @@ Partial Class backup
         'lblTables
         '
         Me.lblTables.AutoSize = True
-        Me.lblTables.Location = New System.Drawing.Point(25, 152)
+        Me.lblTables.Location = New System.Drawing.Point(9, 113)
         Me.lblTables.Name = "lblTables"
         Me.lblTables.Size = New System.Drawing.Size(135, 13)
         Me.lblTables.TabIndex = 20
@@ -254,7 +265,7 @@ Partial Class backup
         'ckbDateFolders
         '
         Me.ckbDateFolders.AutoSize = True
-        Me.ckbDateFolders.Location = New System.Drawing.Point(559, 105)
+        Me.ckbDateFolders.Location = New System.Drawing.Point(543, 10)
         Me.ckbDateFolders.Name = "ckbDateFolders"
         Me.ckbDateFolders.Size = New System.Drawing.Size(188, 17)
         Me.ckbDateFolders.TabIndex = 21
@@ -263,7 +274,7 @@ Partial Class backup
         '
         'pb
         '
-        Me.pb.Location = New System.Drawing.Point(19, 110)
+        Me.pb.Location = New System.Drawing.Point(3, 71)
         Me.pb.Maximum = 1000
         Me.pb.Name = "pb"
         Me.pb.Size = New System.Drawing.Size(511, 23)
@@ -273,7 +284,7 @@ Partial Class backup
         'ckbDetectProxy
         '
         Me.ckbDetectProxy.AutoSize = True
-        Me.ckbDetectProxy.Location = New System.Drawing.Point(642, 13)
+        Me.ckbDetectProxy.Location = New System.Drawing.Point(15, 235)
         Me.ckbDetectProxy.Name = "ckbDetectProxy"
         Me.ckbDetectProxy.Size = New System.Drawing.Size(188, 17)
         Me.ckbDetectProxy.TabIndex = 23
@@ -283,7 +294,7 @@ Partial Class backup
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
-        Me.lblProgress.Location = New System.Drawing.Point(648, 152)
+        Me.lblProgress.Location = New System.Drawing.Point(632, 113)
         Me.lblProgress.Name = "lblProgress"
         Me.lblProgress.Size = New System.Drawing.Size(0, 13)
         Me.lblProgress.TabIndex = 25
@@ -291,7 +302,7 @@ Partial Class backup
         'ckbAppFolders
         '
         Me.ckbAppFolders.AutoSize = True
-        Me.ckbAppFolders.Location = New System.Drawing.Point(559, 124)
+        Me.ckbAppFolders.Location = New System.Drawing.Point(543, 29)
         Me.ckbAppFolders.Name = "ckbAppFolders"
         Me.ckbAppFolders.Size = New System.Drawing.Size(199, 17)
         Me.ckbAppFolders.TabIndex = 26
@@ -303,14 +314,14 @@ Partial Class backup
         Me.cmbPassword.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cmbPassword.FormattingEnabled = True
         Me.cmbPassword.Items.AddRange(New Object() {"Please choose...", "QuickBase Password", "QuickBase User Token"})
-        Me.cmbPassword.Location = New System.Drawing.Point(222, 4)
+        Me.cmbPassword.Location = New System.Drawing.Point(13, 69)
         Me.cmbPassword.Name = "cmbPassword"
         Me.cmbPassword.Size = New System.Drawing.Size(184, 21)
         Me.cmbPassword.TabIndex = 47
         '
         'btnAppToken
         '
-        Me.btnAppToken.Location = New System.Drawing.Point(171, 54)
+        Me.btnAppToken.Location = New System.Drawing.Point(165, 127)
         Me.btnAppToken.Name = "btnAppToken"
         Me.btnAppToken.Size = New System.Drawing.Size(19, 20)
         Me.btnAppToken.TabIndex = 80
@@ -319,52 +330,121 @@ Partial Class backup
         '
         'btnUserToken
         '
-        Me.btnUserToken.Location = New System.Drawing.Point(407, 5)
+        Me.btnUserToken.Location = New System.Drawing.Point(198, 70)
         Me.btnUserToken.Name = "btnUserToken"
         Me.btnUserToken.Size = New System.Drawing.Size(19, 20)
         Me.btnUserToken.TabIndex = 81
         Me.btnUserToken.Text = "?"
         Me.btnUserToken.UseVisualStyleBackColor = True
         '
+        'tabs
+        '
+        Me.tabs.Controls.Add(Me.tabAuth)
+        Me.tabs.Controls.Add(Me.tabBackup)
+        Me.tabs.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.tabs.Location = New System.Drawing.Point(0, 0)
+        Me.tabs.Name = "tabs"
+        Me.tabs.SelectedIndex = 0
+        Me.tabs.Size = New System.Drawing.Size(992, 876)
+        Me.tabs.TabIndex = 82
+        '
+        'tabAuth
+        '
+        Me.tabAuth.Controls.Add(Me.btnTest)
+        Me.tabAuth.Controls.Add(Me.txtPassword)
+        Me.tabAuth.Controls.Add(Me.txtUsername)
+        Me.tabAuth.Controls.Add(Me.btnUserToken)
+        Me.tabAuth.Controls.Add(Me.lblUsername)
+        Me.tabAuth.Controls.Add(Me.btnAppToken)
+        Me.tabAuth.Controls.Add(Me.txtServer)
+        Me.tabAuth.Controls.Add(Me.cmbPassword)
+        Me.tabAuth.Controls.Add(Me.lblServer)
+        Me.tabAuth.Controls.Add(Me.txtAppToken)
+        Me.tabAuth.Controls.Add(Me.lblAppToken)
+        Me.tabAuth.Controls.Add(Me.ckbDetectProxy)
+        Me.tabAuth.Location = New System.Drawing.Point(4, 22)
+        Me.tabAuth.Name = "tabAuth"
+        Me.tabAuth.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabAuth.Size = New System.Drawing.Size(984, 850)
+        Me.tabAuth.TabIndex = 0
+        Me.tabAuth.Text = "Authentication"
+        Me.tabAuth.UseVisualStyleBackColor = True
+        '
+        'btnTest
+        '
+        Me.btnTest.Location = New System.Drawing.Point(13, 258)
+        Me.btnTest.Name = "btnTest"
+        Me.btnTest.Size = New System.Drawing.Size(111, 23)
+        Me.btnTest.TabIndex = 82
+        Me.btnTest.Text = "Test Connection"
+        Me.btnTest.UseVisualStyleBackColor = True
+        '
+        'tabBackup
+        '
+        Me.tabBackup.Controls.Add(Me.cmbAttachmentFolders)
+        Me.tabBackup.Controls.Add(Me.ckbFilesByField)
+        Me.tabBackup.Controls.Add(Me.btnRemove)
+        Me.tabBackup.Controls.Add(Me.cmbAttachments)
+        Me.tabBackup.Controls.Add(Me.btnAddToBackupList)
+        Me.tabBackup.Controls.Add(Me.tvAppsTables)
+        Me.tabBackup.Controls.Add(Me.ckbAppFolders)
+        Me.tabBackup.Controls.Add(Me.btnListTables)
+        Me.tabBackup.Controls.Add(Me.lblProgress)
+        Me.tabBackup.Controls.Add(Me.btnFolder)
+        Me.tabBackup.Controls.Add(Me.pb)
+        Me.tabBackup.Controls.Add(Me.lblBackupFolder)
+        Me.tabBackup.Controls.Add(Me.ckbDateFolders)
+        Me.tabBackup.Controls.Add(Me.lstBackup)
+        Me.tabBackup.Controls.Add(Me.lblTables)
+        Me.tabBackup.Controls.Add(Me.lblAttachments)
+        Me.tabBackup.Controls.Add(Me.lblBackup)
+        Me.tabBackup.Controls.Add(Me.btnBackup)
+        Me.tabBackup.Controls.Add(Me.txtBackupFolder)
+        Me.tabBackup.Location = New System.Drawing.Point(4, 22)
+        Me.tabBackup.Name = "tabBackup"
+        Me.tabBackup.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabBackup.Size = New System.Drawing.Size(984, 850)
+        Me.tabBackup.TabIndex = 1
+        Me.tabBackup.Text = "Backup"
+        Me.tabBackup.UseVisualStyleBackColor = True
+        '
+        'cmbAttachmentFolders
+        '
+        Me.cmbAttachmentFolders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbAttachmentFolders.FormattingEnabled = True
+        Me.cmbAttachmentFolders.Location = New System.Drawing.Point(541, 72)
+        Me.cmbAttachmentFolders.Name = "cmbAttachmentFolders"
+        Me.cmbAttachmentFolders.Size = New System.Drawing.Size(285, 21)
+        Me.cmbAttachmentFolders.TabIndex = 28
+        Me.cmbAttachmentFolders.Visible = False
+        '
+        'ckbFilesByField
+        '
+        Me.ckbFilesByField.AutoSize = True
+        Me.ckbFilesByField.Location = New System.Drawing.Point(543, 49)
+        Me.ckbFilesByField.Name = "ckbFilesByField"
+        Me.ckbFilesByField.Size = New System.Drawing.Size(290, 17)
+        Me.ckbFilesByField.TabIndex = 27
+        Me.ckbFilesByField.Text = "Put attachments in a folder named by the field values of:"
+        Me.ckbFilesByField.UseVisualStyleBackColor = True
+        Me.ckbFilesByField.Visible = False
+        '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(842, 773)
-        Me.Controls.Add(Me.btnUserToken)
-        Me.Controls.Add(Me.btnAppToken)
-        Me.Controls.Add(Me.cmbPassword)
-        Me.Controls.Add(Me.ckbAppFolders)
-        Me.Controls.Add(Me.lblProgress)
-        Me.Controls.Add(Me.ckbDetectProxy)
-        Me.Controls.Add(Me.pb)
-        Me.Controls.Add(Me.ckbDateFolders)
-        Me.Controls.Add(Me.lblTables)
-        Me.Controls.Add(Me.lblBackup)
-        Me.Controls.Add(Me.btnRemove)
-        Me.Controls.Add(Me.txtBackupFolder)
-        Me.Controls.Add(Me.cmbAttachments)
-        Me.Controls.Add(Me.lblAttachments)
-        Me.Controls.Add(Me.btnBackup)
-        Me.Controls.Add(Me.btnAddToBackupList)
-        Me.Controls.Add(Me.lstBackup)
-        Me.Controls.Add(Me.lblBackupFolder)
-        Me.Controls.Add(Me.btnFolder)
-        Me.Controls.Add(Me.btnListTables)
-        Me.Controls.Add(Me.tvAppsTables)
-        Me.Controls.Add(Me.lblAppToken)
-        Me.Controls.Add(Me.txtAppToken)
-        Me.Controls.Add(Me.lblServer)
-        Me.Controls.Add(Me.txtServer)
-        Me.Controls.Add(Me.txtPassword)
-        Me.Controls.Add(Me.lblUsername)
-        Me.Controls.Add(Me.txtUsername)
+        Me.ClientSize = New System.Drawing.Size(992, 876)
+        Me.Controls.Add(Me.tabs)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "backup"
         Me.Text = "QuNect Backup"
         Me.ContextMenuStrip1.ResumeLayout(False)
+        Me.tabs.ResumeLayout(False)
+        Me.tabAuth.ResumeLayout(False)
+        Me.tabAuth.PerformLayout()
+        Me.tabBackup.ResumeLayout(False)
+        Me.tabBackup.PerformLayout()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
     Friend WithEvents txtUsername As System.Windows.Forms.TextBox
@@ -398,4 +478,10 @@ Partial Class backup
     Friend WithEvents cmbPassword As ComboBox
     Friend WithEvents btnAppToken As Button
     Friend WithEvents btnUserToken As Button
+    Friend WithEvents tabs As TabControl
+    Friend WithEvents tabAuth As TabPage
+    Friend WithEvents tabBackup As TabPage
+    Friend WithEvents btnTest As Button
+    Friend WithEvents cmbAttachmentFolders As ComboBox
+    Friend WithEvents ckbFilesByField As CheckBox
 End Class
