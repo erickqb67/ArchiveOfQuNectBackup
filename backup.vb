@@ -37,27 +37,36 @@ Public Class backup
 
     Private Sub backup_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
         If lstBackup.Visible = True Then
-            Dim i As Integer
-            Dim dbids As String = ""
-            Dim tables As String = ""
-            Dim semicolon As String = ""
-            Dim hardReturn = ""
-            For i = 0 To lstBackup.Items.Count - 1
-                dbids &= semicolon & lstBackup.Items(i).Substring(lstBackup.Items(i).LastIndexOf(" ") + 1)
-                tables &= hardReturn & lstBackup.Items(i)
-                semicolon = ";"
-                hardReturn = vbCrLf
-            Next
+
             If appSettings.Settings.Item("tables") Is Nothing Then
-                appSettings.Settings.Add("tables", tables)
+                appSettings.Settings.Add("tables", createTableList())
             Else
-                appSettings.Settings.Item("tables").Value = tables
+                appSettings.Settings.Item("tables").Value = createTableList()
             End If
             cAppConfig.Save(ConfigurationSaveMode.Modified)
-            SaveSetting(AppName, "backup", "dbids", dbids)
+            SaveSetting(AppName, "backup", "dbids", createDBIDList())
         End If
     End Sub
-
+    Function createDBIDList() As String
+        Dim i As Integer
+        Dim dbids As String = ""
+        Dim delimiter As String = ""
+        For i = 0 To lstBackup.Items.Count - 1
+            dbids &= delimiter & lstBackup.Items(i).Substring(lstBackup.Items(i).LastIndexOf(" ") + 1)
+            delimiter = ";"
+        Next
+        Return dbids
+    End Function
+    Function createTableList() As String
+        Dim i As Integer
+        Dim tables As String = ""
+        Dim delimiter As String = ""
+        For i = 0 To lstBackup.Items.Count - 1
+            tables &= delimiter & lstBackup.Items(i)
+            delimiter = vbCrLf
+        Next
+        Return tables
+    End Function
 
     Private Sub backup_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
@@ -122,8 +131,8 @@ Public Class backup
                 End If
                 cmbAttachments.SelectedIndex = CInt(cmdLineArgs(9))
                 cmbPassword.SelectedIndex = PasswordOrToken.token
-                End If
-                automode = True
+            End If
+            automode = True
             listTables(dbids)
             backup()
             Me.Close()
@@ -152,9 +161,7 @@ Public Class backup
         Dim showListTables As Boolean = (txtUsername.Text.Length > 0) And (cmbPassword.SelectedIndex > 0) And (txtPassword.Text.Length > 0) And (txtServer.Text.Length > 0)
         btnListTables.Visible = showListTables
         btnTest.Visible = showListTables
-        'ckbFilesByField.Visible = lstBackup.Items.Count = 1
-        cmbAttachmentFolders.Visible = ckbFilesByField.Visible
-
+        cmbAttachments.Visible = showListTables
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
         SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
@@ -174,6 +181,7 @@ Public Class backup
     Private Sub listTables(dbids As String)
         Me.Cursor = Cursors.WaitCursor
         tvAppsTables.Visible = True
+        btnCommandLine.Visible = True
         Try
             Dim connectionString As String = buildConnectionString("")
             Dim quNectConn As OdbcConnection = New OdbcConnection(connectionString)
@@ -343,6 +351,11 @@ Public Class backup
         End If
     End Sub
     Private Sub btnAddToBackupList_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAddToBackupList.Click
+        addNodeToBackupList(tvAppsTables.SelectedNode)
+    End Sub
+    Sub addNodeToBackupList(tnode As System.Windows.Forms.TreeNode)
+        If tnode Is Nothing Then Exit Sub
+
         If My.Computer.Keyboard.ShiftKeyDown Then
             lstBackup.Items.Clear()
             Dim i As Integer
@@ -353,15 +366,15 @@ Public Class backup
             Next
         Else
             Try
-                If tvAppsTables.SelectedNode.Level <> 1 Then
-                    If tvAppsTables.SelectedNode.Level = 0 Then
-                        For j As Integer = 0 To tvAppsTables.SelectedNode.Nodes.Count - 1
-                            addToBackupList(tvAppsTables.SelectedNode.Nodes(j).FullPath())
+                If tnode.Level <> 1 Then
+                    If tnode.Level = 0 Then
+                        For j As Integer = 0 To tnode.Nodes.Count - 1
+                            addToBackupList(tnode.Nodes(j).FullPath())
                         Next
                     End If
                     Exit Sub
                 End If
-                addToBackupList(tvAppsTables.SelectedNode.FullPath())
+                addToBackupList(tnode.FullPath())
             Catch excpt As Exception
                 MsgBox("Please select a table first", MsgBoxStyle.OkOnly, AppName)
             End Try
@@ -389,7 +402,7 @@ Public Class backup
             lstBackup.Items.Add(appTable)
         Catch excpt As Exception
         End Try
-        showHideControls()
+
     End Sub
     Private Sub tvAppsTables_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles tvAppsTables.DoubleClick
         If tvAppsTables.SelectedNode.Level <> 1 Then
@@ -815,7 +828,6 @@ Public Class backup
             Exit Sub
         End If
         lstBackup.Items.RemoveAt(lstBackup.SelectedIndex)
-        showHideControls()
     End Sub
 
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
@@ -872,7 +884,6 @@ Public Class backup
         MsgBox("Success", MsgBoxStyle.OkOnly, AppName)
     End Sub
     Public Sub tvAppsTables_ItemDrag(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ItemDragEventArgs) Handles tvAppsTables.ItemDrag
-        lstBackup.Tag = e.Item.Fullpath()
         DoDragDrop(e.Item, DragDropEffects.Move)
     End Sub
 
@@ -880,8 +891,59 @@ Public Class backup
         e.Effect = DragDropEffects.Move
     End Sub
     Public Sub lstBackup_DragDrop(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles lstBackup.DragDrop
-        addToBackupList(lstBackup.Tag)
+        Dim draggedNode As System.Windows.Forms.TreeNode = e.Data.GetData(GetType(System.Windows.Forms.TreeNode))
+        addNodeToBackupList(draggedNode)
     End Sub
+    Public Sub lstBackup_MouseDown(ByVal sender As System.Object, ByVal e As MouseEventArgs) Handles lstBackup.MouseDown
+        DoDragDrop(sender, DragDropEffects.Move)
+    End Sub
+
+    Private Sub tvAppsTables_DragEnter(sender As Object, e As DragEventArgs) Handles tvAppsTables.DragEnter
+        e.Effect = DragDropEffects.Move
+    End Sub
+    Public Sub tvAppsTables_DragDrop(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DragEventArgs) Handles tvAppsTables.DragDrop
+        btnRemove_Click(sender, e)
+    End Sub
+
+    Private Sub btnCommandLine_Click(sender As Object, e As EventArgs) Handles btnCommandLine.Click
+        If cmbPassword.SelectedIndex <> PasswordOrToken.token Then
+            MsgBox("This feature is only avialable when using a user token instead of a password.", MsgBoxStyle.OkOnly, AppName)
+            Exit Sub
+        End If
+        Dim dbids As String = createDBIDList()
+        If dbids = "" Then
+            dbids = "all"
+        End If
+        Dim cmdLine As String = cmdLineArgs(0)
+        cmdLine &= " """ & txtBackupFolder.Text & """"
+        cmdLine &= " """ & dbids & """"
+        cmdLine &= " """ & txtUsername.Text & """"
+        cmdLine &= " """ & txtPassword.Text & """"
+        cmdLine &= " """ & txtUsername.Text & """"
+        cmdLine &= " """ & txtServer.Text & """"
+
+        If ckbDetectProxy.Checked Then
+            cmdLine &= " ""1"""
+        Else
+            cmdLine &= " ""0"""
+        End If
+        If ckbDateFolders.Checked Then
+            cmdLine &= " ""1"""
+        Else
+            cmdLine &= " ""0"""
+        End If
+        If ckbAppFolders.Checked Then
+            cmdLine &= " ""1"""
+        Else
+            cmdLine &= " ""0"""
+        End If
+        cmdLine &= " """ & cmbAttachments.SelectedIndex & """"
+        
+        InputBox("Command Line", AppName, cmdLine)
+
+    End Sub
+
+    
 End Class
 
 

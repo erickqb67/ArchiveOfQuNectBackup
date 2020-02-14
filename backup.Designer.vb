@@ -59,8 +59,7 @@ Partial Class backup
         Me.tabAuth = New System.Windows.Forms.TabPage()
         Me.btnTest = New System.Windows.Forms.Button()
         Me.tabBackup = New System.Windows.Forms.TabPage()
-        Me.cmbAttachmentFolders = New System.Windows.Forms.ComboBox()
-        Me.ckbFilesByField = New System.Windows.Forms.CheckBox()
+        Me.btnCommandLine = New System.Windows.Forms.Button()
         Me.ContextMenuStrip1.SuspendLayout()
         Me.tabs.SuspendLayout()
         Me.tabAuth.SuspendLayout()
@@ -125,6 +124,7 @@ Partial Class backup
         '
         'tvAppsTables
         '
+        Me.tvAppsTables.AllowDrop = True
         Me.tvAppsTables.ContextMenuStrip = Me.ContextMenuStrip1
         Me.tvAppsTables.Location = New System.Drawing.Point(5, 137)
         Me.tvAppsTables.Name = "tvAppsTables"
@@ -345,7 +345,7 @@ Partial Class backup
         Me.tabs.Location = New System.Drawing.Point(0, 0)
         Me.tabs.Name = "tabs"
         Me.tabs.SelectedIndex = 0
-        Me.tabs.Size = New System.Drawing.Size(992, 876)
+        Me.tabs.Size = New System.Drawing.Size(826, 742)
         Me.tabs.TabIndex = 82
         '
         'tabAuth
@@ -381,8 +381,7 @@ Partial Class backup
         '
         'tabBackup
         '
-        Me.tabBackup.Controls.Add(Me.cmbAttachmentFolders)
-        Me.tabBackup.Controls.Add(Me.ckbFilesByField)
+        Me.tabBackup.Controls.Add(Me.btnCommandLine)
         Me.tabBackup.Controls.Add(Me.btnRemove)
         Me.tabBackup.Controls.Add(Me.cmbAttachments)
         Me.tabBackup.Controls.Add(Me.btnAddToBackupList)
@@ -403,37 +402,26 @@ Partial Class backup
         Me.tabBackup.Location = New System.Drawing.Point(4, 22)
         Me.tabBackup.Name = "tabBackup"
         Me.tabBackup.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabBackup.Size = New System.Drawing.Size(984, 850)
+        Me.tabBackup.Size = New System.Drawing.Size(818, 716)
         Me.tabBackup.TabIndex = 1
         Me.tabBackup.Text = "Backup"
         Me.tabBackup.UseVisualStyleBackColor = True
         '
-        'cmbAttachmentFolders
+        'btnCommandLine
         '
-        Me.cmbAttachmentFolders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cmbAttachmentFolders.FormattingEnabled = True
-        Me.cmbAttachmentFolders.Location = New System.Drawing.Point(541, 72)
-        Me.cmbAttachmentFolders.Name = "cmbAttachmentFolders"
-        Me.cmbAttachmentFolders.Size = New System.Drawing.Size(285, 21)
-        Me.cmbAttachmentFolders.TabIndex = 28
-        Me.cmbAttachmentFolders.Visible = False
-        '
-        'ckbFilesByField
-        '
-        Me.ckbFilesByField.AutoSize = True
-        Me.ckbFilesByField.Location = New System.Drawing.Point(543, 49)
-        Me.ckbFilesByField.Name = "ckbFilesByField"
-        Me.ckbFilesByField.Size = New System.Drawing.Size(290, 17)
-        Me.ckbFilesByField.TabIndex = 27
-        Me.ckbFilesByField.Text = "Put attachments in a folder named by the field values of:"
-        Me.ckbFilesByField.UseVisualStyleBackColor = True
-        Me.ckbFilesByField.Visible = False
+        Me.btnCommandLine.Location = New System.Drawing.Point(652, 108)
+        Me.btnCommandLine.Name = "btnCommandLine"
+        Me.btnCommandLine.Size = New System.Drawing.Size(161, 23)
+        Me.btnCommandLine.TabIndex = 29
+        Me.btnCommandLine.Text = "Show command line"
+        Me.btnCommandLine.UseVisualStyleBackColor = True
+        Me.btnCommandLine.Visible = False
         '
         'backup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(992, 876)
+        Me.ClientSize = New System.Drawing.Size(826, 742)
         Me.Controls.Add(Me.tabs)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "backup"
@@ -482,6 +470,5 @@ Partial Class backup
     Friend WithEvents tabAuth As TabPage
     Friend WithEvents tabBackup As TabPage
     Friend WithEvents btnTest As Button
-    Friend WithEvents cmbAttachmentFolders As ComboBox
-    Friend WithEvents ckbFilesByField As CheckBox
+    Friend WithEvents btnCommandLine As Button
 End Class
