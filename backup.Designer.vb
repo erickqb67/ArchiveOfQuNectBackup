@@ -70,7 +70,7 @@ Partial Class backup
         '
         Me.txtUsername.Location = New System.Drawing.Point(13, 34)
         Me.txtUsername.Name = "txtUsername"
-        Me.txtUsername.Size = New System.Drawing.Size(197, 20)
+        Me.txtUsername.Size = New System.Drawing.Size(258, 20)
         Me.txtUsername.TabIndex = 0
         '
         'lblUsername
@@ -87,8 +87,9 @@ Partial Class backup
         Me.txtPassword.Location = New System.Drawing.Point(13, 96)
         Me.txtPassword.Name = "txtPassword"
         Me.txtPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtPassword.Size = New System.Drawing.Size(184, 20)
+        Me.txtPassword.Size = New System.Drawing.Size(258, 20)
         Me.txtPassword.TabIndex = 2
+        Me.txtPassword.Visible = False
         '
         'lblServer
         '
@@ -103,7 +104,7 @@ Partial Class backup
         '
         Me.txtServer.Location = New System.Drawing.Point(13, 204)
         Me.txtServer.Name = "txtServer"
-        Me.txtServer.Size = New System.Drawing.Size(203, 20)
+        Me.txtServer.Size = New System.Drawing.Size(258, 20)
         Me.txtServer.TabIndex = 4
         '
         'lblAppToken
@@ -316,7 +317,7 @@ Partial Class backup
         Me.cmbPassword.Items.AddRange(New Object() {"Please choose...", "QuickBase Password", "QuickBase User Token"})
         Me.cmbPassword.Location = New System.Drawing.Point(13, 69)
         Me.cmbPassword.Name = "cmbPassword"
-        Me.cmbPassword.Size = New System.Drawing.Size(184, 21)
+        Me.cmbPassword.Size = New System.Drawing.Size(233, 21)
         Me.cmbPassword.TabIndex = 47
         '
         'btnAppToken
@@ -330,7 +331,7 @@ Partial Class backup
         '
         'btnUserToken
         '
-        Me.btnUserToken.Location = New System.Drawing.Point(198, 70)
+        Me.btnUserToken.Location = New System.Drawing.Point(252, 70)
         Me.btnUserToken.Name = "btnUserToken"
         Me.btnUserToken.Size = New System.Drawing.Size(19, 20)
         Me.btnUserToken.TabIndex = 81
@@ -365,7 +366,7 @@ Partial Class backup
         Me.tabAuth.Location = New System.Drawing.Point(4, 22)
         Me.tabAuth.Name = "tabAuth"
         Me.tabAuth.Padding = New System.Windows.Forms.Padding(3)
-        Me.tabAuth.Size = New System.Drawing.Size(984, 850)
+        Me.tabAuth.Size = New System.Drawing.Size(818, 716)
         Me.tabAuth.TabIndex = 0
         Me.tabAuth.Text = "Authentication"
         Me.tabAuth.UseVisualStyleBackColor = True

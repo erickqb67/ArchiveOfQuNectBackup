@@ -13,7 +13,7 @@ Public Class backup
     Private Const AppName = "QuNectBackup"
     Private Const yearForAllFileURLs = 18
     Private cmdLineArgs() As String
-    Private automode As Boolean = False
+    Private automode As Boolean = True
     Private appdbid As String = ""
     Private qdbAppName As String = ""
     Private dbidToAppName As New Dictionary(Of String, String)
@@ -36,16 +36,7 @@ Public Class backup
     Private qdbVer As qdbVersion = New qdbVersion
 
     Private Sub backup_Disposed(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Disposed
-        If lstBackup.Visible = True Then
 
-            If appSettings.Settings.Item("tables") Is Nothing Then
-                appSettings.Settings.Add("tables", createTableList())
-            Else
-                appSettings.Settings.Item("tables").Value = createTableList()
-            End If
-            cAppConfig.Save(ConfigurationSaveMode.Modified)
-            SaveSetting(AppName, "backup", "dbids", createDBIDList())
-        End If
     End Sub
     Function createDBIDList() As String
         Dim i As Integer
@@ -69,6 +60,7 @@ Public Class backup
     End Function
 
     Private Sub backup_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
         txtUsername.Text = GetSetting(AppName, "Credentials", "username")
         cmbPassword.SelectedIndex = CInt(GetSetting(AppName, "Credentials", "passwordOrToken", CStr(PasswordOrToken.Neither)))
         txtPassword.Text = GetSetting(AppName, "Credentials", "password")
@@ -100,8 +92,7 @@ Public Class backup
         If appSettings.Settings.Item("location") IsNot Nothing AndAlso appSettings.Settings.Item("location").Value.Length > 0 Then
             txtBackupFolder.Text = appSettings.Settings.Item("location").Value
         Else
-            appSettings.Settings.Add("location", txtBackupFolder.Text)
-            cAppConfig.Save(ConfigurationSaveMode.Modified)
+            SaveSettings()
         End If
         cmdLineArgs = System.Environment.GetCommandLineArgs()
         If cmdLineArgs.Length > 1 Then
@@ -136,13 +127,15 @@ Public Class backup
             listTables(dbids)
             backup()
             Me.Close()
+        Else
+            automode = False
         End If
         Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
         Me.Text = "QuNect Backup " & myBuildInfo.ProductVersion
     End Sub
     Sub showHideControls()
         cmbPassword.Visible = txtUsername.Text.Length > 0
-        txtPassword.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex <> 0
+        txtPassword.Visible = cmbPassword.SelectedIndex > 0 And cmbPassword.Visible
         txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
         lblServer.Visible = txtServer.Visible
         lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.password
@@ -151,7 +144,6 @@ Public Class backup
         btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.token
         ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
         cmbPassword.Visible = txtUsername.Text.Length > 0
-        txtPassword.Visible = cmbPassword.SelectedIndex > 0
         txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex > 0
         lblServer.Visible = txtServer.Visible
         txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.password And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
@@ -163,13 +155,51 @@ Public Class backup
         btnTest.Visible = showListTables
         cmbAttachments.Visible = showListTables
     End Sub
-    Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
+
+    Sub SaveSettings()
+        If automode Then Exit Sub
+        SaveSetting(AppName, "backup", "dbids", createDBIDList())
         SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
+        SaveSetting(AppName, "Credentials", "password", txtPassword.Text)
+        SaveSetting(AppName, "Credentials", "server", txtServer.Text)
+        SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
+        SaveSetting(AppName, "Credentials", "apptoken", txtAppToken.Text)
+        SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+        If ckbDateFolders.Checked Then
+            SaveSetting(AppName, "datefolders", "mode", "1")
+        Else
+            SaveSetting(AppName, "datefolders", "mode", "0")
+        End If
+        If ckbAppFolders.Checked Then
+            SaveSetting(AppName, "appfolders", "mode", "1")
+        Else
+            SaveSetting(AppName, "appfolders", "mode", "0")
+        End If
+        If ckbDetectProxy.Checked Then
+            SaveSetting(AppName, "Credentials", "detectproxysettings", "1")
+        Else
+            SaveSetting(AppName, "Credentials", "detectproxysettings", "0")
+        End If
+        SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
+        If appSettings.Settings.Item("tables") Is Nothing Then
+            appSettings.Settings.Add("tables", createTableList())
+        Else
+            appSettings.Settings.Item("tables").Value = createTableList()
+        End If
+        If appSettings.Settings.Item("tables") Is Nothing Then
+            appSettings.Settings.Add("location", txtBackupFolder.Text)
+        Else
+            appSettings.Settings.Item("location").Value = txtBackupFolder.Text
+        End If
+        cAppConfig.Save(ConfigurationSaveMode.Modified)
+    End Sub
+    Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
+        SaveSettings()
         showHideControls()
     End Sub
 
     Private Sub txtPassword_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtPassword.TextChanged
-        SaveSetting(AppName, "Credentials", "password", txtPassword.Text)
+        SaveSettings()
         showHideControls()
     End Sub
 
@@ -331,7 +361,7 @@ Public Class backup
 
 
     Private Sub txtServer_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtServer.TextChanged
-        SaveSetting(AppName, "Credentials", "server", txtServer.Text)
+        SaveSettings()
         showHideControls()
     End Sub
     Private Sub btnFolder_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnFolder.Click
@@ -345,9 +375,8 @@ Public Class backup
 
         If dlgResult = Windows.Forms.DialogResult.OK Then
             txtBackupFolder.Text = MyFolderBrowser.SelectedPath
-            SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
-            appSettings.Settings.Item("location").Value = txtBackupFolder.Text
-            cAppConfig.Save(ConfigurationSaveMode.Modified)
+            SaveSettings()
+
         End If
     End Sub
     Private Sub btnAddToBackupList_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnAddToBackupList.Click
@@ -380,6 +409,7 @@ Public Class backup
             End Try
         End If
         showHideControls()
+        SaveSettings()
     End Sub
 
 
@@ -402,6 +432,7 @@ Public Class backup
             lstBackup.Items.Add(appTable)
         Catch excpt As Exception
         End Try
+        SaveSettings()
 
     End Sub
     Private Sub tvAppsTables_DoubleClick(ByVal sender As Object, ByVal e As System.EventArgs) Handles tvAppsTables.DoubleClick
@@ -419,10 +450,6 @@ Public Class backup
         backup()
     End Sub
     Private Function buildConnectionString(additionalFolders As String) As String
-        If txtPassword.Text.Contains(";") Then
-            Throw New System.Exception("Although Quick Base allows semicolons in passwords the ODBC standard does not permit semicolons." & vbCrLf & "Please change your Quick Base password to eliminate semicolons or use a Quick Base user token instead of a password.")
-            Return ""
-        End If
         buildConnectionString = "FIELDNAMECHARACTERS=all;uid=" & txtUsername.Text
         buildConnectionString &= ";pwd=" & txtPassword.Text
         buildConnectionString &= ";driver={QuNect ODBC for QuickBase};IGNOREDUPEFIELDNAMES=1;"
@@ -766,12 +793,12 @@ Public Class backup
         Return System.Uri.UnescapeDataString(text)
     End Function
     Private Sub txtAppToken_TextChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles txtAppToken.TextChanged
-        SaveSetting(AppName, "Credentials", "apptoken", txtAppToken.Text)
+        SaveSettings()
     End Sub
 
     Private Sub cmbAttachments_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmbAttachments.SelectedIndexChanged
         If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
-            SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+            SaveSettings()
         End If
     End Sub
 
@@ -799,28 +826,18 @@ Public Class backup
             End If
         End If
         showHideControls()
+        SaveSettings()
+
     End Sub
 
     Private Sub ckbDateFolders_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbDateFolders.CheckStateChanged
-        If ckbDateFolders.Checked Then
-            SaveSetting(AppName, "datefolders", "mode", "1")
-        Else
-            SaveSetting(AppName, "datefolders", "mode", "0")
-        End If
+        SaveSettings()
     End Sub
     Private Sub ckbAppFolders_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbAppFolders.CheckStateChanged
-        If ckbAppFolders.Checked Then
-            SaveSetting(AppName, "appfolders", "mode", "1")
-        Else
-            SaveSetting(AppName, "appfolders", "mode", "0")
-        End If
+        SaveSettings()
     End Sub
     Private Sub ckbDetectProxy_CheckStateChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles ckbDetectProxy.CheckStateChanged
-        If ckbDetectProxy.Checked Then
-            SaveSetting(AppName, "Credentials", "detectproxysettings", "1")
-        Else
-            SaveSetting(AppName, "Credentials", "detectproxysettings", "0")
-        End If
+        SaveSettings()
     End Sub
 
     Private Sub lstBackup_DoubleClick(sender As Object, e As System.EventArgs) Handles lstBackup.DoubleClick
@@ -828,6 +845,8 @@ Public Class backup
             Exit Sub
         End If
         lstBackup.Items.RemoveAt(lstBackup.SelectedIndex)
+        SaveSettings()
+
     End Sub
 
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
@@ -855,7 +874,7 @@ Public Class backup
         tvAppsTables.SelectedNode = e.Node
     End Sub
     Private Sub cmbPassword_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbPassword.SelectedIndexChanged
-        SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
+        SaveSettings()
         showHideControls()
     End Sub
     Private Sub btnAppToken_Click(sender As Object, e As EventArgs) Handles btnAppToken.Click
@@ -938,12 +957,10 @@ Public Class backup
             cmdLine &= " ""0"""
         End If
         cmdLine &= " """ & cmbAttachments.SelectedIndex & """"
-        
+
         InputBox("Command Line", AppName, cmdLine)
 
     End Sub
-
-    
 End Class
 
 
