@@ -164,7 +164,9 @@ Public Class backup
         SaveSetting(AppName, "Credentials", "server", txtServer.Text)
         SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
         SaveSetting(AppName, "Credentials", "apptoken", txtAppToken.Text)
-        SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+        If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
+            SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+        End If
         If ckbDateFolders.Checked Then
             SaveSetting(AppName, "datefolders", "mode", "1")
         Else
@@ -797,9 +799,7 @@ Public Class backup
     End Sub
 
     Private Sub cmbAttachments_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmbAttachments.SelectedIndexChanged
-        If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
-            SaveSettings()
-        End If
+        SaveSettings()
     End Sub
 
     Private Sub btnRemove_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnRemove.Click
