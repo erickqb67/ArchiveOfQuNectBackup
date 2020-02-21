@@ -129,71 +129,85 @@ Public Class backup
             Me.Close()
         Else
             automode = False
+            Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
+            Me.Text = "QuNect Backup " & myBuildInfo.ProductVersion
+            If txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0 Then
+                If (cmbPassword.SelectedIndex = PasswordOrToken.password And txtAppToken.Text.Length > 0) Or cmbPassword.SelectedIndex = PasswordOrToken.token Then
+                    tabs.SelectedIndex = 1
+                End If
+            End If
         End If
-        Dim myBuildInfo As FileVersionInfo = FileVersionInfo.GetVersionInfo(Application.ExecutablePath)
-        Me.Text = "QuNect Backup " & myBuildInfo.ProductVersion
     End Sub
     Sub showHideControls()
-        cmbPassword.Visible = txtUsername.Text.Length > 0
-        txtPassword.Visible = cmbPassword.SelectedIndex > 0 And cmbPassword.Visible
-        txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
-        lblServer.Visible = txtServer.Visible
-        lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.password
-        txtAppToken.Visible = lblAppToken.Visible
-        btnAppToken.Visible = lblAppToken.Visible
-        btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.token
-        ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
-        cmbPassword.Visible = txtUsername.Text.Length > 0
-        txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex > 0
-        lblServer.Visible = txtServer.Visible
-        txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.password And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
-        lblAppToken.Visible = txtAppToken.Visible
-        btnAppToken.Visible = txtAppToken.Visible
-        btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.token
-        Dim showListTables As Boolean = (txtUsername.Text.Length > 0) And (cmbPassword.SelectedIndex > 0) And (txtPassword.Text.Length > 0) And (txtServer.Text.Length > 0)
-        btnListTables.Visible = showListTables
-        btnTest.Visible = showListTables
-        cmbAttachments.Visible = showListTables
+        Try
+            cmbPassword.Visible = txtUsername.Text.Length > 0
+            txtPassword.Visible = cmbPassword.SelectedIndex <> PasswordOrToken.Neither And cmbPassword.Visible
+            txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
+            lblServer.Visible = txtServer.Visible
+            lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.password
+            txtAppToken.Visible = lblAppToken.Visible
+            btnAppToken.Visible = lblAppToken.Visible
+            btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.token
+            ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
+            cmbPassword.Visible = txtUsername.Text.Length > 0
+            txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex <> PasswordOrToken.Neither
+            lblServer.Visible = txtServer.Visible
+            txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.password And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
+            lblAppToken.Visible = txtAppToken.Visible
+            btnAppToken.Visible = txtAppToken.Visible
+            btnUserToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.token
+            Dim showListTables As Boolean = (txtUsername.Text.Length > 0) And (cmbPassword.SelectedIndex <> PasswordOrToken.Neither) And (txtPassword.Text.Length > 0) And (txtServer.Text.Length > 0)
+            btnListTables.Visible = showListTables
+            btnTest.Visible = showListTables
+            cmbAttachments.Visible = showListTables
+        Catch excpt As Exception
+            MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+        End Try
+
     End Sub
 
     Sub SaveSettings()
-        If automode Then Exit Sub
-        SaveSetting(AppName, "backup", "dbids", createDBIDList())
-        SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
-        SaveSetting(AppName, "Credentials", "password", txtPassword.Text)
-        SaveSetting(AppName, "Credentials", "server", txtServer.Text)
-        SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
-        SaveSetting(AppName, "Credentials", "apptoken", txtAppToken.Text)
-        If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
-            SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
-        End If
-        If ckbDateFolders.Checked Then
-            SaveSetting(AppName, "datefolders", "mode", "1")
-        Else
-            SaveSetting(AppName, "datefolders", "mode", "0")
-        End If
-        If ckbAppFolders.Checked Then
-            SaveSetting(AppName, "appfolders", "mode", "1")
-        Else
-            SaveSetting(AppName, "appfolders", "mode", "0")
-        End If
-        If ckbDetectProxy.Checked Then
-            SaveSetting(AppName, "Credentials", "detectproxysettings", "1")
-        Else
-            SaveSetting(AppName, "Credentials", "detectproxysettings", "0")
-        End If
-        SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
-        If appSettings.Settings.Item("tables") Is Nothing Then
-            appSettings.Settings.Add("tables", createTableList())
-        Else
-            appSettings.Settings.Item("tables").Value = createTableList()
-        End If
-        If appSettings.Settings.Item("tables") Is Nothing Then
-            appSettings.Settings.Add("location", txtBackupFolder.Text)
-        Else
-            appSettings.Settings.Item("location").Value = txtBackupFolder.Text
-        End If
-        cAppConfig.Save(ConfigurationSaveMode.Modified)
+        Try
+            If automode Then Exit Sub
+            SaveSetting(AppName, "backup", "dbids", createDBIDList())
+            SaveSetting(AppName, "Credentials", "username", txtUsername.Text)
+            SaveSetting(AppName, "Credentials", "password", txtPassword.Text)
+            SaveSetting(AppName, "Credentials", "server", txtServer.Text)
+            SaveSetting(AppName, "location", "path", txtBackupFolder.Text)
+            SaveSetting(AppName, "Credentials", "apptoken", txtAppToken.Text)
+            If (cmbAttachments.SelectedIndex = 3 And qdbVer.year >= yearForAllFileURLs) Or cmbAttachments.SelectedIndex < 3 Then
+                SaveSetting(AppName, "attachments", "mode", cmbAttachments.Text)
+            End If
+            If ckbDateFolders.Checked Then
+                SaveSetting(AppName, "datefolders", "mode", "1")
+            Else
+                SaveSetting(AppName, "datefolders", "mode", "0")
+            End If
+            If ckbAppFolders.Checked Then
+                SaveSetting(AppName, "appfolders", "mode", "1")
+            Else
+                SaveSetting(AppName, "appfolders", "mode", "0")
+            End If
+            If ckbDetectProxy.Checked Then
+                SaveSetting(AppName, "Credentials", "detectproxysettings", "1")
+            Else
+                SaveSetting(AppName, "Credentials", "detectproxysettings", "0")
+            End If
+            SaveSetting(AppName, "Credentials", "passwordOrToken", cmbPassword.SelectedIndex)
+            If appSettings.Settings.Item("tables") Is Nothing Then
+                appSettings.Settings.Add("tables", createTableList())
+            Else
+                appSettings.Settings.Item("tables").Value = createTableList()
+            End If
+            If appSettings.Settings.Item("location") Is Nothing Then
+                appSettings.Settings.Add("location", txtBackupFolder.Text)
+            Else
+                appSettings.Settings.Item("location").Value = txtBackupFolder.Text
+            End If
+            cAppConfig.Save(ConfigurationSaveMode.Modified)
+        Catch excpt As Exception
+            MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+        End Try
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
         SaveSettings()

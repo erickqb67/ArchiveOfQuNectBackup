@@ -156,7 +156,7 @@ Partial Class backup
         '
         'btnFolder
         '
-        Me.btnFolder.Location = New System.Drawing.Point(506, 25)
+        Me.btnFolder.Location = New System.Drawing.Point(782, 27)
         Me.btnFolder.Name = "btnFolder"
         Me.btnFolder.Size = New System.Drawing.Size(28, 23)
         Me.btnFolder.TabIndex = 10
@@ -229,7 +229,7 @@ Partial Class backup
         Me.txtBackupFolder.Enabled = False
         Me.txtBackupFolder.Location = New System.Drawing.Point(263, 27)
         Me.txtBackupFolder.Name = "txtBackupFolder"
-        Me.txtBackupFolder.Size = New System.Drawing.Size(237, 20)
+        Me.txtBackupFolder.Size = New System.Drawing.Size(513, 20)
         Me.txtBackupFolder.TabIndex = 17
         '
         'btnRemove
@@ -266,7 +266,7 @@ Partial Class backup
         'ckbDateFolders
         '
         Me.ckbDateFolders.AutoSize = True
-        Me.ckbDateFolders.Location = New System.Drawing.Point(543, 10)
+        Me.ckbDateFolders.Location = New System.Drawing.Point(417, 53)
         Me.ckbDateFolders.Name = "ckbDateFolders"
         Me.ckbDateFolders.Size = New System.Drawing.Size(188, 17)
         Me.ckbDateFolders.TabIndex = 21
@@ -278,7 +278,7 @@ Partial Class backup
         Me.pb.Location = New System.Drawing.Point(3, 71)
         Me.pb.Maximum = 1000
         Me.pb.Name = "pb"
-        Me.pb.Size = New System.Drawing.Size(511, 23)
+        Me.pb.Size = New System.Drawing.Size(371, 23)
         Me.pb.TabIndex = 22
         Me.pb.Visible = False
         '
@@ -303,7 +303,7 @@ Partial Class backup
         'ckbAppFolders
         '
         Me.ckbAppFolders.AutoSize = True
-        Me.ckbAppFolders.Location = New System.Drawing.Point(543, 29)
+        Me.ckbAppFolders.Location = New System.Drawing.Point(417, 72)
         Me.ckbAppFolders.Name = "ckbAppFolders"
         Me.ckbAppFolders.Size = New System.Drawing.Size(199, 17)
         Me.ckbAppFolders.TabIndex = 26
