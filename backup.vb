@@ -459,7 +459,9 @@ Public Class backup
     End Sub
 
     Private Sub backup_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Resize
-        lstBackup.Width = Me.Width - 20 - lstBackup.Left
+        lstBackup.Width = tabs.DisplayRectangle.Width - lstBackup.Left
+        lstBackup.Height = tabs.DisplayRectangle.Height - lstBackup.Top
+        tvAppsTables.Height = lstBackup.Height
     End Sub
 
     Private Sub btnBackup_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnBackup.Click
