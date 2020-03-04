@@ -140,16 +140,16 @@ Public Class backup
     End Sub
     Sub showHideControls()
         Try
-            cmbPassword.Visible = txtUsername.Text.Length > 0
-            txtPassword.Visible = cmbPassword.SelectedIndex <> PasswordOrToken.Neither And cmbPassword.Visible
+            Dim usernamePresent As Boolean = txtUsername.Text.Length > 0
+            cmbPassword.Visible = usernamePresent
+            txtPassword.Visible = cmbPassword.SelectedIndex <> PasswordOrToken.Neither And usernamePresent
             txtServer.Visible = txtPassword.Visible And txtPassword.Text.Length > 0
             lblServer.Visible = txtServer.Visible
-            lblAppToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.password
+            lblAppToken.Visible = usernamePresent And cmbPassword.SelectedIndex = PasswordOrToken.password
             txtAppToken.Visible = lblAppToken.Visible
             btnAppToken.Visible = lblAppToken.Visible
-            btnUserToken.Visible = cmbPassword.Visible And cmbPassword.SelectedIndex = PasswordOrToken.token
+            btnUserToken.Visible = usernamePresent And cmbPassword.SelectedIndex = PasswordOrToken.token
             ckbDetectProxy.Visible = txtServer.Text.Length > 0 And txtServer.Visible
-            cmbPassword.Visible = txtUsername.Text.Length > 0
             txtServer.Visible = txtUsername.Text.Length > 0 And txtPassword.Text.Length > 0 And cmbPassword.SelectedIndex <> PasswordOrToken.Neither
             lblServer.Visible = txtServer.Visible
             txtAppToken.Visible = txtUsername.Text.Length > 0 And cmbPassword.SelectedIndex = PasswordOrToken.password And txtPassword.Text.Length > 0 And txtServer.Text.Length > 0
@@ -656,7 +656,8 @@ Public Class backup
             Directory.CreateDirectory(folderPath)
         End If
         If ckbAppFolders.Checked Then
-            folderPath &= "\" & makeFileNameCompatible(dbidToAppName(dbid))
+            Dim dbidWithoutQID As String = Regex.Replace(dbid, "~-?\d+", "")
+            folderPath &= "\" & makeFileNameCompatible(dbidToAppName(dbidWithoutQID))
             Directory.CreateDirectory(folderPath)
         End If
         Dim filenamePrefix As String = dbName
