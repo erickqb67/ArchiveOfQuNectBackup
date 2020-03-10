@@ -950,32 +950,35 @@ Public Class backup
         If dbids = "" Then
             dbids = "all"
         End If
-        Dim cmdLine As String = cmdLineArgs(0)
-        cmdLine &= " """ & txtBackupFolder.Text & """"
-        cmdLine &= " """ & dbids & """"
-        cmdLine &= " """ & txtUsername.Text & """"
-        cmdLine &= " """ & txtPassword.Text & """"
-        cmdLine &= " """ & txtUsername.Text & """"
-        cmdLine &= " """ & txtServer.Text & """"
+        Dim programScript As String = cmdLineArgs(0)
+        Dim arguments As String = ""
+        arguments &= " """ & txtBackupFolder.Text & """"
+        arguments &= " """ & dbids & """"
+        arguments &= " """ & txtUsername.Text & """"
+        arguments &= " """ & txtPassword.Text & """"
+        arguments &= " """ & txtUsername.Text & """"
+        arguments &= " """ & txtServer.Text & """"
 
         If ckbDetectProxy.Checked Then
-            cmdLine &= " ""1"""
+            arguments &= " ""1"""
         Else
-            cmdLine &= " ""0"""
+            arguments &= " ""0"""
         End If
         If ckbDateFolders.Checked Then
-            cmdLine &= " ""1"""
+            arguments &= " ""1"""
         Else
-            cmdLine &= " ""0"""
+            arguments &= " ""0"""
         End If
         If ckbAppFolders.Checked Then
-            cmdLine &= " ""1"""
+            arguments &= " ""1"""
         Else
-            cmdLine &= " ""0"""
+            arguments &= " ""0"""
         End If
-        cmdLine &= " """ & cmbAttachments.SelectedIndex & """"
+        arguments &= " """ & cmbAttachments.SelectedIndex & """"
 
-        InputBox("Command Line", AppName, cmdLine)
+        frmCommandLine.txtArguments.Text = arguments
+        frmCommandLine.txtProgramScript.Text = programScript
+        frmCommandLine.ShowDialog()
 
     End Sub
 End Class

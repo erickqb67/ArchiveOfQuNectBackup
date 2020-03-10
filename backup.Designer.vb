@@ -295,7 +295,7 @@ Partial Class backup
         'lblProgress
         '
         Me.lblProgress.AutoSize = True
-        Me.lblProgress.Location = New System.Drawing.Point(632, 113)
+        Me.lblProgress.Location = New System.Drawing.Point(626, 57)
         Me.lblProgress.Name = "lblProgress"
         Me.lblProgress.Size = New System.Drawing.Size(0, 13)
         Me.lblProgress.TabIndex = 25
