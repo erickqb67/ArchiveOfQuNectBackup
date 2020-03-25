@@ -952,7 +952,7 @@ Public Class backup
         End If
         Dim programScript As String = """" & cmdLineArgs(0) & """"
         Dim arguments As String = ""
-        arguments &= " """ & txtBackupFolder.Text & """"
+        arguments &= """" & txtBackupFolder.Text & """"
         arguments &= " """ & dbids & """"
         arguments &= " """ & txtUsername.Text & """"
         arguments &= " """ & txtPassword.Text & """"
