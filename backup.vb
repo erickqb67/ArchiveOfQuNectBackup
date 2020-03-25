@@ -950,13 +950,12 @@ Public Class backup
         If dbids = "" Then
             dbids = "all"
         End If
-        Dim programScript As String = cmdLineArgs(0)
+        Dim programScript As String = """" & cmdLineArgs(0) & """"
         Dim arguments As String = ""
         arguments &= " """ & txtBackupFolder.Text & """"
         arguments &= " """ & dbids & """"
         arguments &= " """ & txtUsername.Text & """"
         arguments &= " """ & txtPassword.Text & """"
-        arguments &= " """ & txtUsername.Text & """"
         arguments &= " """ & txtServer.Text & """"
 
         If ckbDetectProxy.Checked Then
