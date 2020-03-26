@@ -161,7 +161,7 @@ Public Class backup
             btnTest.Visible = showListTables
             cmbAttachments.Visible = showListTables
         Catch excpt As Exception
-            MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
         End Try
 
     End Sub
@@ -206,7 +206,7 @@ Public Class backup
             End If
             cAppConfig.Save(ConfigurationSaveMode.Modified)
         Catch excpt As Exception
-            MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
         End Try
     End Sub
     Private Sub txtUsername_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtUsername.TextChanged
@@ -242,7 +242,7 @@ Public Class backup
             End If
 
             If qdbVer.year < 17 Then
-                MsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("You are running the 20" & qdbVer.year & " version of QuNect ODBC for QuickBase. Please install the latest version from https://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
                 quNectConn.Dispose()
                 Me.Cursor = Cursors.Default
                 Exit Sub
@@ -256,9 +256,9 @@ Public Class backup
         Catch excpt As Exception
             Me.Cursor = Cursors.Default
             If excpt.Message.Contains("Data source name not found") Then
-                MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
             End If
             Exit Sub
         End Try
@@ -266,7 +266,7 @@ Public Class backup
     Sub timeoutCallback(ByVal result As System.IAsyncResult)
         If Not automode Then
             Me.Cursor = Cursors.Default
-            MsgBox("Operation timed out. Please try again.", MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox("Operation timed out. Please try again.", MsgBoxStyle.OkOnly, AppName)
         End If
     End Sub
     Sub listTablesFromGetSchema(tables As DataTable, dbids As String)
@@ -421,7 +421,7 @@ Public Class backup
                 End If
                 addToBackupList(tnode.FullPath())
             Catch excpt As Exception
-                MsgBox("Please select a table first", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Please select a table first", MsgBoxStyle.OkOnly, AppName)
             End Try
         End If
         showHideControls()
@@ -511,7 +511,7 @@ Public Class backup
     Private Sub backup()
         'here we need to go through the list and backup
         If cmbAttachments.SelectedIndex = 3 And qdbVer.year < yearForAllFileURLs Then
-            MsgBox("Please upgrade to the latest version of QuNect ODBC for QuickBase to list all file URLs instead of just the current revision file URL.", MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox("Please upgrade to the latest version of QuNect ODBC for QuickBase to list all file URLs instead of just the current revision file URL.", MsgBoxStyle.OkOnly, AppName)
             Return
         End If
         Dim i As Integer
@@ -523,7 +523,7 @@ Public Class backup
             quNectConn.Open()
         Catch excpt As Exception
             If Not automode Then
-                MsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
             End If
             quNectConn.Dispose()
             Me.Cursor = Cursors.Default
@@ -547,7 +547,7 @@ Public Class backup
                     quNectConn.Open()
                 Catch excpt As Exception
                     If Not automode Then
-                        MsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
+                        PopUpMsgBox(excpt.Message(), MsgBoxStyle.OkOnly, AppName)
                     End If
                     quNectConn.Dispose()
                     Me.Cursor = Cursors.Default
@@ -567,13 +567,13 @@ Public Class backup
         Me.Cursor = Cursors.Default
         If Not automode Then
             If lstBackup.Items.Count = 1 And backupCounter = 1 Then
-                MsgBox("Your table has been backed up!", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Your table has been backed up!", MsgBoxStyle.OkOnly, AppName)
             ElseIf lstBackup.Items.Count = 1 And backupCounter = 0 Then
-                MsgBox("Sorry, your table was not backed up.", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Sorry, your table was not backed up.", MsgBoxStyle.OkOnly, AppName)
             ElseIf backupCounter = 0 Then
-                MsgBox("Sorry, none of your tables were  backed up.", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Sorry, none of your tables were  backed up.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(backupCounter & " of " & lstBackup.Items.Count & " tables were backed up.", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox(backupCounter & " of " & lstBackup.Items.Count & " tables were backed up.", MsgBoxStyle.OkOnly, AppName)
             End If
         End If
     End Sub
@@ -595,7 +595,7 @@ Public Class backup
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you Like To Continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = PopUpMsgBox("Could Not Get record count For table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you Like To Continue?", MsgBoxStyle.OkCancel, AppName)
                 backupTable.result = False
             End If
 
@@ -605,7 +605,7 @@ Public Class backup
             Exit Function
         End Try
         If Not dr.HasRows Then
-            backupTable.okayCancel = MsgBox("Could Not Get record count For table " & dbid & " perhaps because either the report's, criteria, sort order or columns refer to fields you do not have access to." & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+            backupTable.okayCancel = PopUpMsgBox("Could Not Get record count For table " & dbid & " perhaps because either the report's, criteria, sort order or columns refer to fields you do not have access to." & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
             backupTable.result = False
             Exit Function
         End If
@@ -619,7 +619,7 @@ Public Class backup
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable.okayCancel = MsgBox("Could not get field identifiers and types for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = PopUpMsgBox("Could not get field identifiers and types for table " & dbid & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
                 backupTable.result = False
             End If
             quNectCmd.Dispose()
@@ -675,7 +675,7 @@ Public Class backup
             objWriter = New System.IO.StreamWriter(filepath)
         Catch excpt As Exception
             If Not automode Then
-                backupTable.okayCancel = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = PopUpMsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
                 backupTable.result = False
             End If
             Exit Function
@@ -694,7 +694,7 @@ Public Class backup
             dr = quNectCmd.ExecuteReader()
         Catch excpt As Exception
             If Not automode Then
-                backupTable.okayCancel = MsgBox("Could not backup table " & filenamePrefix & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = PopUpMsgBox("Could not backup table " & filenamePrefix & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
                 backupTable.result = False
             End If
             quNectCmd.Dispose()
@@ -709,7 +709,7 @@ Public Class backup
             objWriter = New System.IO.StreamWriter(filepath)
         Catch excpt As Exception
             If Not automode Then
-                backupTable.okayCancel = MsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
+                backupTable.okayCancel = PopUpMsgBox("Could not open file " & filepath & " because " & excpt.Message() & vbCrLf & "Would you like to continue?", MsgBoxStyle.OkCancel, AppName)
                 backupTable.result = False
             End If
             Exit Function
@@ -868,7 +868,7 @@ Public Class backup
 
     Private Sub ContextMenuStrip1_ItemClicked(sender As Object, e As ToolStripItemClickedEventArgs) Handles ContextMenuStrip1.ItemClicked
         If (qdbVer.year < 16) Or ((qdbVer.year = 16) And ((qdbVer.major <= 6) And (qdbVer.minor < 20))) Then
-            MsgBox("To access this feature please install the latest version from http://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox("To access this feature please install the latest version from http://qunect.com/download/QuNect.exe", MsgBoxStyle.OkOnly, AppName)
             Exit Sub
         End If
         'here we need to reconnect with the appid in the connection string
@@ -910,14 +910,14 @@ Public Class backup
         Catch excpt As Exception
             Me.Cursor = Cursors.Default
             If excpt.Message.Contains("Data source name not found") Then
-                MsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox("Please install QuNect ODBC for QuickBase from http://qunect.com/download/QuNect.exe and try again.", MsgBoxStyle.OkOnly, AppName)
             Else
-                MsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
+                PopUpMsgBox(excpt.Message, MsgBoxStyle.OkOnly, AppName)
             End If
             Exit Sub
         End Try
         Me.Cursor = Cursors.Default
-        MsgBox("Success", MsgBoxStyle.OkOnly, AppName)
+        PopUpMsgBox("Success", MsgBoxStyle.OkOnly, AppName)
     End Sub
     Public Sub tvAppsTables_ItemDrag(ByVal sender As System.Object, ByVal e As System.Windows.Forms.ItemDragEventArgs) Handles tvAppsTables.ItemDrag
         DoDragDrop(e.Item, DragDropEffects.Move)
@@ -943,7 +943,7 @@ Public Class backup
 
     Private Sub btnCommandLine_Click(sender As Object, e As EventArgs) Handles btnCommandLine.Click
         If cmbPassword.SelectedIndex <> PasswordOrToken.token Then
-            MsgBox("This feature is only avialable when using a user token instead of a password.", MsgBoxStyle.OkOnly, AppName)
+            PopUpMsgBox("This feature is only avialable when using a user token instead of a password.", MsgBoxStyle.OkOnly, AppName)
             Exit Sub
         End If
         Dim dbids As String = createDBIDList()
@@ -978,8 +978,17 @@ Public Class backup
         frmCommandLine.txtArguments.Text = arguments
         frmCommandLine.txtProgramScript.Text = programScript
         frmCommandLine.ShowDialog()
-
     End Sub
+    Private Function PopUpMsgBox(msg As String) As MsgBoxResult
+        If Not automode Or cmdLineArgs.Length > 10 Then
+            Return MsgBox(msg)
+        End If
+    End Function
+    Private Function PopUpMsgBox(msg As String, Style As MsgBoxStyle, Title As String) As MsgBoxResult
+        If Not automode Or cmdLineArgs.Length > 10 Then
+            Return MsgBox(msg, Style, Title)
+        End If
+    End Function
 End Class
 
 
